@@ -51,6 +51,7 @@ void detect_obstacle(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 	// break;
 	}
 
+	//Angle calculation
 	double a=coefficients->values[0], b=coefficients->values[1], c=coefficients->values[2];
 	double s = sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
 	std::vector<double> normal = {a/s, b/s, c/s};
