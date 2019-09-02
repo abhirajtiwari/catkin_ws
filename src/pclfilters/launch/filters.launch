@@ -1,0 +1,6 @@
+<!-- Not working as of now -->
+<launch>
+	<include file="$(find rs_driver)/launch/rs_publish.launch"/>
+	<node pkg="pclfilters" type="pclfilters_node" name="voxel"/>
+	<node pkg="rviz" type="rviz" name="rviz"/>
+</launch>

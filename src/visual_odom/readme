@@ -1,0 +1,4 @@
+$ roslaunch openni_launch openni.launch depth_registration:=true
+$ rosrun rtabmap_ros rgbd_odometry rgb/image:=/camera/rgb/image_rect_color depth/image:=/camera/depth_registered/image_raw rgb/camera_info:=/camera/rgb/camera_info _frame_id:=camera_link
+
+reset_odom_to_pose

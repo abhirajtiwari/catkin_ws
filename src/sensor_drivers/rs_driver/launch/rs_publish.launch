@@ -1,0 +1,4 @@
+<launch>
+	<node name="rs_publisher" pkg="rs_driver" type="rs_driver" />
+	<node pkg="tf" type="static_transform_publisher" name="tf_static_transform" args="0 0 0 0 0 0 1 pcl_frame map" />
+</launch>
