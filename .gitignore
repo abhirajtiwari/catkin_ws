@@ -4,3 +4,4 @@ install/*
 .vscode/*
 .catkin_workspace
 .*.swp
+compile_commands.json
