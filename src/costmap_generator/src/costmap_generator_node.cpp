@@ -57,7 +57,7 @@ void addObstacles (const sensor_msgs::PointCloud2::ConstPtr& icloud) {
 	data.resize(cm_size,0); //Make this -1 when adding plane
 	for (auto p : input_cloud->points) {
 		int y_t = (((MAP_HEIGHT*100)/2 - ((int)(p.z*100)))/(MAP_RESOLUTION*100));
-		int x_t = ((MAP_HEIGHT*100)/2 + ((int)(p.x*100)))/(MAP_RESOLUTION*100);
+		int x_t = ((MAP_HEIGHT*100)/2 - ((int)(p.x*100)))/(MAP_RESOLUTION*100);
 		data[y_t*((MAP_WIDTH*100)/(MAP_RESOLUTION*100)) + x_t] += COST_PER_POINT;
 		if (data[y_t*((MAP_WIDTH*100)/(MAP_RESOLUTION*100)) + x_t] > 10*COST_PER_POINT) data[y_t*((MAP_WIDTH*100)/(MAP_RESOLUTION*100)) + x_t] = 100; 
 	}
