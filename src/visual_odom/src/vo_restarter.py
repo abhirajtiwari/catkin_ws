@@ -16,7 +16,7 @@ def reset_odom_to(p, o):
     rospy.wait_for_service('reset_odom_to_pose')
     try:
         reset = rospy.ServiceProxy('reset_odom_to_pose', ResetPose)
-        eu = tf.transformations.euler_from_quaternion(p.orientation)
+        eu = tf.transformations.euler_from_quaternion([p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w])
         reset(o.pose.pose.x, o.pose.pose.y, o.pose.pose.z, eu[0], eu[1], eu[2])
         rospy.logdebug('Service reset successfull')
     except rospy.ServiceException, e:
