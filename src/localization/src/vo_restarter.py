@@ -12,12 +12,12 @@ last_odom = Odometry()
 last_imu = Imu()
 
 def reset_odom_to(p, o):
-    rospy.logdebug('Restarting Odometry')
+    rospy.logwarn('Restarting Odometry')
     rospy.wait_for_service('reset_odom_to_pose')
     try:
         reset = rospy.ServiceProxy('reset_odom_to_pose', ResetPose)
         eu = tf.transformations.euler_from_quaternion((p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w))
-        reset(o.pose.pose.x, o.pose.pose.y, o.pose.pose.z, eu[0], eu[1], eu[2])
+        reset(o.pose.pose.position.x, o.pose.pose.position.y, o.pose.pose.position.z, eu[0], eu[1], eu[2])
         rospy.logdebug('Service reset successfull')
     except rospy.ServiceException, e:
         rospy.logfatal('Service call to restore vo failed')
