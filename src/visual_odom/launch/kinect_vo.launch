@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<launch>
+	<include file="$(find openni_launch)/launch/openni.launch">
+		<param name="depth_registration" value="true"/>
+	</include>
+
+	<node pkg="rtabmap_ros" type="rgbd_odometry" name="vo">
+		<remap from="rgb/image" to="/camera/rgb/image_rect_color"/>
+		<remap from="rgb/camera_info" to="/camera/rgb/camera_info"/>
+		<remap from="depth/image" to="/camera/depth_registered/image_raw"/>
+		<!-- <param name="frame_id" value="camera_link"/> -->
+	</node>
+	<node pkg="tf" type="static_transform_publisher" name="laser" args="0 0 0 0 0 0 1  /base_link /camera_link  100"/>
+</launch>

@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<launch>
+
+<include file="$(find visual_odom)/launch/realsense_vo.launch"/>
+<!-- <node pkg="android" type="odom_correcter.py" name="odom_correcter"/> -->
+<node pkg="visual_odom" type="vo_restarter.py" name="vo_restarter"/>
+
+<node pkg="robot_localization" type="ekf_localization_node" name="robot_localization_ekf_node_odom" clear_params="true">
+  <param name="yaw_offset" value="-1.57079632"/>
+    <param name="frequency" value="30." />
+    <param name="sensor_timeout" value="0.2" />
+    <param name="two_d_mode" value="true" />
+    <param name="publish_tf" value="true" />
+    <param name="map_frame" value="map" />
+    <param name="odom_frame" value="odom" />
+    <param name="base_link_frame" value="base_link" />
+    <param name="world_frame" value="odom" />
+
+    <param name="imu0" value="/imu_data/data" />
+    <param name="imu0_differential" value="false"/>
+    <param name="imu0_remove_gravitational_acceleration" value="false"/>
+    <rosparam param="imu0_config">
+      [false, false, false,
+      false, false, true,
+       false, false, false,
+       false, false, true,
+       true, true, false]</rosparam>
+
+    <param name="odom0" value="/visual_odom"/>
+    <param name="odom0_differential" value="false"/>
+    <rosparam param="odom0_config">[true, true, false,
+false, false, false, 
+true, true, false, 
+false, false, true,
+false, false, false]
+    </rosparam>
+
+	<remap from="/odometry/filtered" to="/odometry/r_odom"/>
+</node>
+
+<node pkg="robot_localization" type="ekf_localization_node" name="robot_localization_ekf_node_map" clear_params="true">
+  
+  <param name="frequency" value="30." />
+  <param name="sensor_timeout" value="0.2"/>
+  <param name="two_d_mode" value="true" />
+  <param name="yaw_offset" value="-1.57079632"/>
+    <param name="publish_tf" value="true" />
+    <param name="map_frame" value="map" />
+    <param name="odom_frame" value="odom" />
+    <param name="base_link_frame" value="base_link" />
+    <param name="world_frame" value="map" />
+
+<param name="imu0" value="/imu_data/raw" />
+    <param name="imu0_differential" value="true"/>
+    <param name="imu0_remove_gravitational_acceleration" value="false"/>
+    <rosparam param="imu0_config">
+      [false, false, false,
+      false, false, true,
+       false, false, false,
+       false, false, true,
+       true, false, false]</rosparam>
+
+<param name="odom0" value="/odometry/gps"/>
+<param name="odom0_differential" value="false"/>
+<rosparam param="odom0_config">
+[true, true, false,
+false, false, false,
+false, false, false, 
+false, false, false, 
+false, false, false]</rosparam>
+
+<param name="odom1" value="/visual_odom"/>
+    <param name="odom1_differential" value="false"/>
+    <rosparam param="odom1_config">[true, true, false,
+false, false, false, 
+true, true, false, 
+false, false, true,
+false, false, false]
+    </rosparam>
+
+<remap from="odometry/filtered" to="odometry/r_gps_odom"/>
+</node>
+
+<node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true">
+  <param name="frequency" value="10."/>
+  <param name="zero_altitude" value="true"/>
+  <param name="magnetic_declination_radians" value="0"/>
+  <param name="yaw_offset" value="-1.57079632"/>
+  <param name="publish_filtered_gps" value="true"/>
+  <remap from="imu/data" to="/imu_data/raw" />
+  <remap from="gps/fix" to="/fix" />_
+  <remap from="odometry/filtered" to="odometry/r_gps_odom" />
+
+</node>
+
+
+</launch>
+

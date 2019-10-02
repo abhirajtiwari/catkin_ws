@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="nmea_publisher" pkg="android" type="gps_publisher.py"/>
+  <node name="nmea_topic_driver" pkg="nmea_navsat_driver" type="nmea_topic_driver">
+  </node>
+  <node name="gps_correcter" pkg="android" type="gps_correcter.py"/>
+
+  <node name="imu_publisher" pkg="android" type="imu_publisher.py"/>
+  <node name="imu_filter_madgwick" pkg="imu_filter_madgwick" type="imu_filter_node">
+	  <remap from="/imu/data_raw/" to="/phone/imu/data_raw"/>
+	  <remap from="/imu/mag" to="/phone/imu/mag"/>
+	  <remap from="/imu/data" to="/phone/imu/data"/>
+	  <param name="publish_tf" value="false"/>
+  </node>
+
+  <node name="basetoimu" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 base_link imu 10"/>
+  <node name="basetogps" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 base_link gps 10"/>
+
+
+</launch>
