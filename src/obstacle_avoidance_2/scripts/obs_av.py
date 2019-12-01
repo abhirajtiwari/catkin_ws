@@ -7,7 +7,12 @@ from sensor_msgs.msg import Imu
 from std_msgs.msg import String
 import numpy as np
 from masks import cardiod
+from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head
+from checkclear import check_clear
 
+global endlat, endlon
+endlat = 13.3480237
+endlon = 74.7921562
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
 pub = rospy.Publisher("masked", LaserScan, queue_size=10)
 
@@ -46,10 +51,24 @@ def join():
 def imu_callback(data):
     global imu_og_input
     imu_og_input = data
+    global imu_heading, aligner
+
+    orientation_list = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
+    (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
+
+    yaw = radians(yaw)
+    if yaw < 0:
+        yaw += 360
+    yaw = (yaw + aligner) % 360
+
+    imu_heading = 360 - yaw
+    # print(heading)
 
 def fix_callback(data):
-    global fix_og_input
+    global fix_og_input, pre_lat, pre_lon
     fix_og_input = data
+    pre_lat = data.latitude
+    pre_lon = data.longitude
 
 #constant matrices for numpy calculations
 thetas = np.arange(-2.39982771873, 2.39982771873, 0.00436332309619)
@@ -79,8 +98,20 @@ def mask():
 
 
 def main():
+    global pre_lat, pre_lon, imu_heading
     rospy.Subscriber("scan", LaserScan, ls_callback)
-    mask()
+    rospy.Subscriber("imu_data/raw", Imu, imu_callback)
+    rospy.Subscriber("fix", NavSatFix, fix_callback)
+    bearing, dist = get_heading(pre_lon, pre_lat, endlon, endlat)
+    heading_diff = bearing - imu_heading
+    if abs(heading_diff) >= 90:
+        match_head(pre_lon, pre_lat, endlon, endlat, imu_heading)
+    elif dist <= 3:
+        print("Reached. Distance remaining",dist)
+        return
+    elif check_clear():
+        mask()
+    
     rospy.spin()
 
 if __name__ == '__main__':

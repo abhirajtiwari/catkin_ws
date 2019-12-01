@@ -7,6 +7,7 @@ global st_gear, turn_gear
 st_gear=5
 turn_gear=7
 joystick_topic = rospy.Publisher('/joystick_topic', String, queue_size=10)
+g = pyproj.Geod(ellps='WGS84')
 
 #Basic Map function
 def map1(x,in_min,in_max,out_min,out_max):
@@ -44,7 +45,7 @@ def clockwise():
     global st_gear, turn_gear
     publish_joystick(turn_gear, 16000, 8000)
     print('Rotating clockwise')
-    
+
 def brute_stop():
     global st_gear, turn_gear
     publish_joystick(st_gear, 8000, 8000)
@@ -64,14 +65,18 @@ def match_head(startlong, startlat, endlong, endlat, imu_heading):
         imu_heading=int(imu_heading)
         heading_diff=imu_heading-waypoint_heading
         print("Heading",imu_heading,"Bearing",waypoint_heading,"Difference",heading_diff)
-        if imu_heading < waypoint_heading+5 and imu_heading>waypoint_heading-5:
+        if imu_heading < waypoint_heading + 2.5 and imu_heading>waypoint_heading - 2.5:
             brute_stop()
             break
+        if abs(heading_diff) <= 20:
+            turn_gear=5
+        elif abs(heading_diff) <= 10:
+            turn_gear=4
         if heading_diff <= 0 and heading_diff >= -180:
             clockwise()
-        if heading_diff < -180:
+        elif heading_diff < -180:
             anticlockwise()
-        if heading_diff >= 0 and heading_diff < 180:
+        elif heading_diff >= 0 and heading_diff < 180:
             anticlockwise()             
-        if heading_diff >= 180:
+        elif heading_diff >= 180:
             clockwise()
