@@ -94,6 +94,7 @@ def mask():
             y = np.sum(np_ranges*sines)
             print (math.degrees(np.arctan2(y,x)))
             pub.publish(masked_laser)
+            ellipticalDiscToSquare(x,y)
         # free_ob = True
 
 
