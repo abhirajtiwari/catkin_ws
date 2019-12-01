@@ -7,6 +7,7 @@ global st_gear, turn_gear
 st_gear=5
 turn_gear=7
 joystick_topic = rospy.Publisher('/joystick_topic', String, queue_size=10)
+
 #Basic Map function
 def map1(x,in_min,in_max,out_min,out_max):
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -44,27 +45,33 @@ def clockwise():
     publish_joystick(turn_gear, 16000, 8000)
     print('Rotating clockwise')
     
+def brute_stop():
+    global st_gear, turn_gear
+    publish_joystick(st_gear, 8000, 8000)
+    print('Rotating clockwise')
 
+#Heading for destinaion co-ordinates
 def get_heading(startlong, startlat, endlong, endlat):
     (az12, az21, dist) = g.inv(startlong, startlat, endlong, endlat)
     if az12<0:
        az12=az12+360
     return az12,dist 
 
-def match_head():
+def match_head(startlong, startlat, endlong, endlat, imu_heading):
     waypoint_heading,dist=get_heading(startlong, startlat, endlong, endlat)
     while True:
-        imu_heading=int(heading)
+        global st_gear, turn_gear
+        imu_heading=int(imu_heading)
         heading_diff=imu_heading-waypoint_heading
         print("Heading",imu_heading,"Bearing",waypoint_heading,"Difference",heading_diff)
         if imu_heading < waypoint_heading+5 and imu_heading>waypoint_heading-5:
-            #brute_stop()
+            brute_stop()
             break
-        if heading_diff<=0 and heading_diff >= -180:
+        if heading_diff <= 0 and heading_diff >= -180:
             clockwise()
         if heading_diff < -180:
             anticlockwise()
-        if heading_diff>=0 and heading_diff < 180:
+        if heading_diff >= 0 and heading_diff < 180:
             anticlockwise()             
         if heading_diff >= 180:
             clockwise()
