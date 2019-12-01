@@ -12,6 +12,7 @@ rospy.init_node("obs_av", anonymous=True, disable_signals=True)
 pub = rospy.Publisher("masked", LaserScan, queue_size=10)
 
 #Inputs from various sensors
+free_ob = True
 ls_og_input = LaserScan()
 ls_1_og_input = LaserScan()
 ls_1_og_input.ranges = np.zeros(1101).tolist()
@@ -31,10 +32,15 @@ def ls_callback(data):
     join()
 
 def join():
+    global free_ob
+    # while not free_ob:
+    #     continue
+    # free_ob = False
     global ls_og_input, ls_1_og_input, ls_2_og_input
     ls_og_input = LaserScan()
     ls_og_input = ls_1_og_input
     ls_og_input.header.frame_id = 'cloud'
+    # free_ob = True
     # ls_og_input.ranges = (np.array(ls_1_og_input.ranges) + np.array(ls_2_og_input.ranges)).tolist()
 
 def imu_callback(data):
@@ -53,12 +59,15 @@ sines = np.sin(thetas)
 def mask():
     global masked_laser, ls_og_input
     global thetas
+    global free_ob
     while True:
-        time.sleep(0.2)
+        time.sleep(0.1)
+        # if not free_ob:
+        #     continue
+        # free_ob = False
         masked_laser = ls_og_input
         np_ranges = np.array(ls_og_input.ranges)
         if np_ranges.shape[0] != 0:
-            print('here')
             # np_ranges[np_ranges>16] = 16
             np_ranges = cardiod(np_ranges, thetas).astype('float32')
             masked_laser.ranges = np_ranges.tolist()
@@ -66,6 +75,7 @@ def mask():
             y = np.sum(np_ranges*sines)
             print (math.degrees(np.arctan2(y,x)))
             pub.publish(masked_laser)
+        # free_ob = True
 
 
 def main():
