@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find sick_scan)/launch/sick_mrs_1xxx.launch"/>
+	<node pkg="tf" type="static_transform_publisher" name="base_to_cloud" args="0 0 0 0 0 0 base_link cloud 100"/>
+</launch>
