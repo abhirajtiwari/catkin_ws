@@ -4,15 +4,16 @@ import math
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import Imu
+from tf.transformations import euler_from_quaternion
 from std_msgs.msg import String
 import numpy as np
 from masks import cardiod
 from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head
 from checkclear import check_clear
 
-global endlat, endlon
-endlat = 13.3480237
-endlon = 74.7921562
+global 
+endcoods = [13.3480237, 74.7921562]
+aligner = 360 - 0
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
 pub = rospy.Publisher("masked", LaserScan, queue_size=10)
 
@@ -48,15 +49,15 @@ def join():
     # free_ob = True
     # ls_og_input.ranges = (np.array(ls_1_og_input.ranges) + np.array(ls_2_og_input.ranges)).tolist()
 
-def imu_callback(data):
+def imu_callback(msg):
     global imu_og_input
-    imu_og_input = data
+    imu_og_input = msg
     global imu_heading, aligner
 
     orientation_list = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
     (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
 
-    yaw = radians(yaw)
+    yaw = math.degrees(yaw)
     if yaw < 0:
         yaw += 360
     yaw = (yaw + aligner) % 360
@@ -65,53 +66,52 @@ def imu_callback(data):
     # print(heading)
 
 def fix_callback(data):
-    global fix_og_input, pre_lat, pre_lon
+    global fix_og_input, precoods
     fix_og_input = data
-    pre_lat = data.latitude
-    pre_lon = data.longitude
+    precoods = [data.latitude, data.longitude]
 
 #constant matrices for numpy calculations
 thetas = np.arange(-2.39982771873, 2.39982771873, 0.00436332309619)
 cosines = np.cos(thetas)
 sines = np.sin(thetas)
-
+ori_card = np.ones(1101)*8
 def mask():
-    global masked_laser, ls_og_input
-    global thetas
-    global free_ob
-    while True:
-        time.sleep(0.1)
-        # if not free_ob:
-        #     continue
-        # free_ob = False
-        masked_laser = ls_og_input
-        np_ranges = np.array(ls_og_input.ranges)
-        if np_ranges.shape[0] != 0:
-            # np_ranges[np_ranges>16] = 16
-            np_ranges = cardiod(np_ranges, thetas).astype('float32')
-            masked_laser.ranges = np_ranges.tolist()
-            x = np.sum(np_ranges*cosines)
-            y = np.sum(np_ranges*sines)
-            print (math.degrees(np.arctan2(y,x)))
-            pub.publish(masked_laser)
-            ellipticalDiscToSquare(x,y)
-        # free_ob = True
+    global masked_laser, ls_og_input, thetas, free_ob
+
+    time.sleep(0.1)
+    # if not free_ob:
+    #     continue
+    # free_ob = False
+    masked_laser = ls_og_input
+    np_ranges = np.array(ls_og_input.ranges)
+    if np_ranges.shape[0] != 0:
+        # np_ranges[np_ranges>16] = 16
+        np_ranges = cardiod(np_ranges, thetas).astype('float32')
+        masked_laser.ranges = np_ranges.tolist()
+        x = np.sum(np_ranges*cosines)
+        y = np.sum(np_ranges*sines)
+        print (math.degrees(np.arctan2(y,x)))
+        pub.publish(masked_laser)
+        ellipticalDiscToSquare(x,y)
+    # free_ob = True
 
 
 def main():
-    global pre_lat, pre_lon, imu_heading
+    global imu_heading, masked_laser, ls_og_input, precoods
+
     rospy.Subscriber("scan", LaserScan, ls_callback)
     rospy.Subscriber("imu_data/raw", Imu, imu_callback)
     rospy.Subscriber("fix", NavSatFix, fix_callback)
-    bearing, dist = get_heading(pre_lon, pre_lat, endlon, endlat)
-    heading_diff = bearing - imu_heading
-    if abs(heading_diff) >= 90:
-        match_head(pre_lon, pre_lat, endlon, endlat, imu_heading)
-    elif dist <= 3:
-        print("Reached. Distance remaining",dist)
-        return
-    elif check_clear():
-        mask()
+    while True:
+        bearing, dist = get_heading(precoods, endcoods)
+        heading_diff = bearing - imu_heading
+        if abs(heading_diff) >= 90:
+            match_head(precoods, endcoods, imu_heading)
+        elif dist <= 3:
+            print("Reached. Distance remaining",dist)
+            return
+        elif check_clear(masked_laser, ori_card,0.5):
+            mask()
     
     rospy.spin()
 

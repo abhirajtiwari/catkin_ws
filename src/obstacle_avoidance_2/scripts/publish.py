@@ -52,14 +52,14 @@ def brute_stop():
     print('Rotating clockwise')
 
 #Heading for destinaion co-ordinates
-def get_heading(startlong, startlat, endlong, endlat):
-    (az12, az21, dist) = g.inv(startlong, startlat, endlong, endlat)
+def get_heading(start, end):
+    (az12, az21, dist) = g.inv(start[1], start[0], end[1], end[0])
     if az12<0:
        az12=az12+360
     return az12,dist 
 
-def match_head(startlong, startlat, endlong, endlat, imu_heading):
-    waypoint_heading,dist=get_heading(startlong, startlat, endlong, endlat)
+def match_head(start, end, imu_heading):
+    waypoint_heading,dist=get_heading(start, end)
     while True:
         global st_gear, turn_gear
         imu_heading=int(imu_heading)

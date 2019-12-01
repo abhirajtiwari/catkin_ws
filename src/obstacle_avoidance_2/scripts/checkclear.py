@@ -1,6 +1,6 @@
 import rospy 
 import numpy as np
-from sensor_msgs.msgs import Imu
+from sensor_msgs.msg import Imu
 from tf.transformations import euler_from_quaternion
 #needs to ne tuned
 #-2.39982771873
