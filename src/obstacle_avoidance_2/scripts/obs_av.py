@@ -8,14 +8,29 @@ from cardiod import cardiod
 
 #Inputs from various sensors
 ls_og_input = LaserScan()
+ls_1_og_input = LaserScan()
+ls_1_og_input.ranges = np.zeros(1101).tolist()
+ls_2_og_input = LaserScan()
+ls_2_og_input.ranges = np.zeros(1101).tolist()
 imu_og_input = Imu()
 fix_og_input = NavSatFix()
 
 #Callbacks
 def ls_callback(data):
-    global ls_og_input
-    if data.header.frame_id == "cloud_POS_250_DIST1":
-        ls_og_input = data
+    global ls_og_input, ls_1_og_input, ls_2_og_input
+    if data.header.frame_id == 'cloud_POS_000_DIST1':
+        ls_1_og_input = data
+        join()
+    if data.header.frame_id == 'cloud_POS_000_DIST2':
+        ls_2_og_input = data
+        join()
+
+def join():
+    global ls_og_input, ls_1_og_input, ls_2_og_input
+    ls_og_input = LaserScan()
+    ls_og_input = ls_1_og_input
+    ls_og_input.header.frame_id = 'cloud'
+    ls_og_input.ranges = (np.array(ls_1_og_input.ranges) + np.array(ls_2_og_input.ranges)).tolist()
 
 def imu_callback(data):
     global imu_og_input
