@@ -1,6 +1,7 @@
 import rospy
 import time
 import math
+import threading 
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import Imu
@@ -10,7 +11,8 @@ from masks import cardiod, nomask
 
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
 pub = rospy.Publisher("masked", LaserScan, queue_size=10)
-
+#global lock
+lock=threading.Lock()
 #Inputs from various sensors
 free_ob = True
 ls_og_input = LaserScan()
@@ -24,12 +26,14 @@ masked_laser = LaserScan()
 
 #Callbacks
 def ls_callback(data):
+    lock.acquire()
     global ls_og_input, ls_1_og_input, ls_2_og_input
     if data.header.frame_id == 'cloud_POS_000_DIST1':
         ls_1_og_input = data
     if data.header.frame_id == 'cloud_POS_000_DIST2':
         ls_2_og_input = data
     join()
+    lock.release()
 
 def join():
     global free_ob
@@ -61,7 +65,8 @@ def mask():
     global thetas
     global free_ob
     while True:
-        time.sleep(0.2)
+        #time.sleep(0.2)
+        lock.acquire()
         # if not free_ob:
         #     continue
         # free_ob = False
@@ -86,6 +91,7 @@ def mask():
             y = np.sum(sliced_np_ranges*sines[190:911])
             print (np.sqrt(np.square(x) + np.square(y)), math.degrees(np.arctan2(y,x))*8)
             pub.publish(masked_laser)
+            lock.release()
         # free_ob = True
 
 
