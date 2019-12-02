@@ -15,9 +15,10 @@ def map1(x,in_min,in_max,out_min,out_max):
 
 #Circular to Square Co-ordinates
 def ellipticalDiscToSquare(u,v):
+    print(11111)
     global st_gear, turn_gear
-    u = map1 (u, -16, 16, -1, 1)
-    v = map1 (v, -16, 16, -1, 1)
+    u = map1 (u, -160, 160, -1, 1)
+    v = map1 (v, -160, 160, -1, 1)
     u2 = u * u
     v2 = v * v
     twosqrt2 = 2.0 * (2.0)**(0.5)
@@ -31,6 +32,7 @@ def ellipticalDiscToSquare(u,v):
     y = 0.5 * (termy)**(0.5) - 0.5 * (termy2)**(0.5)
     x = map1(x, -1, 1, -8000, 8000) + 8000
     y = 8000 + map1(y, -1, 1, -8000, 8000)
+    print(x,y)
     publish_joystick(st_gear, x, y)
 
 def publish_joystick(gear, x, y):
@@ -58,25 +60,17 @@ def get_heading(start, end):
        az12=az12+360
     return az12,dist 
 
-def match_head(start, end, imu_heading):
-    waypoint_heading,dist=get_heading(start, end)
-    while True:
-        global st_gear, turn_gear
-        imu_heading=int(imu_heading)
-        heading_diff=imu_heading-waypoint_heading
-        print("Heading",imu_heading,"Bearing",waypoint_heading,"Difference",heading_diff)
-        if imu_heading < waypoint_heading + 2.5 and imu_heading>waypoint_heading - 2.5:
-            brute_stop()
-            break
-        if abs(heading_diff) <= 20:
-            turn_gear=5
-        elif abs(heading_diff) <= 10:
-            turn_gear=4
-        if heading_diff <= 0 and heading_diff >= -180:
-            clockwise()
-        elif heading_diff < -180:
-            anticlockwise()
-        elif heading_diff >= 0 and heading_diff < 180:
-            anticlockwise()             
-        elif heading_diff >= 180:
-            clockwise()
+def match_head(start, end, heading_diff):
+    global st_gear, turn_gear
+    if abs(heading_diff) <= 20:
+        turn_gear=5
+    elif abs(heading_diff) <= 10:
+        turn_gear=4
+    if heading_diff <= 0 and heading_diff >= -180:
+        clockwise()
+    elif heading_diff < -180:
+        anticlockwise()
+    elif heading_diff >= 0 and heading_diff < 180:
+        anticlockwise()             
+    elif heading_diff >= 180:
+        clockwise()

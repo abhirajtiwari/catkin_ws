@@ -11,7 +11,10 @@ from masks import cardiod
 from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head
 from checkclear import check_clear
 
-global 
+global endcoods, precoods, imu_heading, np_ranges, sines, cosines
+np_ranges=0
+imu_heading=0
+precoods = [0, 0]
 endcoods = [13.3480237, 74.7921562]
 aligner = 360 - 0
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
@@ -63,7 +66,6 @@ def imu_callback(msg):
     yaw = (yaw + aligner) % 360
 
     imu_heading = 360 - yaw
-    # print(heading)
 
 def fix_callback(data):
     global fix_og_input, precoods
@@ -76,8 +78,8 @@ cosines = np.cos(thetas)
 sines = np.sin(thetas)
 ori_card = np.ones(1101)*8
 def mask():
-    global masked_laser, ls_og_input, thetas, free_ob
-
+    global masked_laser, ls_og_input, thetas, free_ob, np_ranges
+    print('222222')
     time.sleep(0.1)
     # if not free_ob:
     #     continue
@@ -92,25 +94,31 @@ def mask():
         y = np.sum(np_ranges*sines)
         print (math.degrees(np.arctan2(y,x)))
         pub.publish(masked_laser)
+        print('333333')
         ellipticalDiscToSquare(x,y)
     # free_ob = True
 
 
 def main():
-    global imu_heading, masked_laser, ls_og_input, precoods
+    global imu_heading, masked_laser, ls_og_input, precoods, np_ranges, sines, cosines
 
     rospy.Subscriber("scan", LaserScan, ls_callback)
     rospy.Subscriber("imu_data/raw", Imu, imu_callback)
     rospy.Subscriber("fix", NavSatFix, fix_callback)
+    mask()
     while True:
         bearing, dist = get_heading(precoods, endcoods)
-        heading_diff = bearing - imu_heading
+        heading_diff = imu_heading - bearing
         if abs(heading_diff) >= 90:
-            match_head(precoods, endcoods, imu_heading)
+            while abs(heading_diff)>=2.5:
+                match_head(precoods, endcoods, heading_diff)
+                bearing, dist = get_heading(precoods, endcoods)
+                heading_diff = imu_heading - bearing
+                print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
         elif dist <= 3:
             print("Reached. Distance remaining",dist)
             return
-        elif check_clear(masked_laser, ori_card,0.5):
+        elif check_clear(np_ranges, ori_card, 0.5, sines, cosines):
             mask()
     
     rospy.spin()
