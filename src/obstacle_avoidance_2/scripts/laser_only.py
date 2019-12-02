@@ -8,7 +8,7 @@ from sensor_msgs.msg import Imu
 from std_msgs.msg import String
 import numpy as np
 from masks import cardiod, nomask
-global s
+
 s=1
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
 pub = rospy.Publisher("masked", LaserScan, queue_size=10)

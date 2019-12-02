@@ -118,7 +118,7 @@ def main():
         elif dist <= 3:
             print("Reached. Distance remaining",dist)
             return
-        elif check_clear(np_ranges, ori_card, 0.5, sines, cosines):
+        elif check_clear(masked_laser, ori_card, 0.5, sines, cosines):
             mask()
     
     rospy.spin()
