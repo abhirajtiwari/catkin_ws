@@ -98,12 +98,14 @@ def mask():
 
 
 def main():
+    #do match head first 
     global imu_heading, masked_laser, ls_og_input, precoods, np_ranges, sines, cosines
 
     rospy.Subscriber("scan", LaserScan, ls_callback)
     rospy.Subscriber("imu_data/raw", Imu, imu_callback)
     rospy.Subscriber("fix", NavSatFix, fix_callback)
     mask()
+
     while True:
         bearing, dist = get_heading(precoods, endcoods)
         heading_diff = imu_heading - bearing
