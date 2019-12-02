@@ -15,7 +15,6 @@ def map1(x,in_min,in_max,out_min,out_max):
 
 #Circular to Square Co-ordinates
 def ellipticalDiscToSquare(u,v):
-    print(11111)
     global st_gear, turn_gear
     u = map1 (u, -160, 160, -1, 1)
     v = map1 (v, -160, 160, -1, 1)
@@ -32,7 +31,7 @@ def ellipticalDiscToSquare(u,v):
     y = 0.5 * (termy)**(0.5) - 0.5 * (termy2)**(0.5)
     x = map1(x, -1, 1, -8000, 8000) + 8000
     y = 8000 + map1(y, -1, 1, -8000, 8000)
-    print(x,y)
+    print("Josytick",st_gear,x,y)
     publish_joystick(st_gear, x, y)
 
 def publish_joystick(gear, x, y):
