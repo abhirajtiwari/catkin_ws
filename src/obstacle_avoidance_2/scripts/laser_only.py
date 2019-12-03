@@ -82,12 +82,11 @@ def mask():
         # free_ob = False
         masked_laser = ls_og_input
         np_ranges = np.array(ls_og_input.ranges)
-	print("1")
+        print("1")
         if np_ranges.shape[0] != 0:
-	    
             p = 32
-	    np_ranges[np_ranges>16] =p
-	    np_ranges[np_ranges<5] =-20             
+            np_ranges[np_ranges>16] =p
+            np_ranges[np_ranges<5] =-20             
             sliced_thetas = thetas[190:911]
             sliced_np_ranges = np_ranges[190:911]
             # sliced_np_ranges[sliced_np_ranges == 0] = 16
@@ -102,8 +101,8 @@ def mask():
             # y = np.sum(np_ranges*sines)
             x = np.sum(sliced_np_ranges*cosines[190:911])
             y = np.sum(sliced_np_ranges*sines[190:911])
-	    magnitude = (np.sqrt(np.square(x) + np.square(y))) / (p*np.pi) 
-	    direction = math.degrees(np.arctan2(y,x))
+            magnitude = (np.sqrt(np.square(x) + np.square(y))) / (p*np.pi) 
+            direction = math.degrees(np.arctan2(y,x))
             print (magnitude, direction)
             pub.publish(masked_laser)
         signal()
