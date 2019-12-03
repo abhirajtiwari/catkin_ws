@@ -8,18 +8,7 @@ from sensor_msgs.msg import Imu
 from std_msgs.msg import String
 import numpy as np
 from masks import cardiod, nomask
-from tf.transformations import euler_from_quaternion
-from masks import cardiod
-from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head
-from checkclear import check_clear
 
-
-global endcoods, precoods, imu_heading, np_ranges, sines, cosines
-np_ranges=0
-imu_heading=0
-precoods = [0, 0]
-endcoods = [13.3480237, 74.7921562]
-aligner = 360 - 0
 s=1
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
 pub = rospy.Publisher("masked", LaserScan, queue_size=10)
@@ -68,20 +57,9 @@ def join():
     # free_ob = True
     # ls_og_input.ranges = (np.array(ls_1_og_input.ranges) + np.array(ls_2_og_input.ranges)).tolist()
 
-def imu_callback(msg):
+def imu_callback(data):
     global imu_og_input
-    imu_og_input = msg
-    global imu_heading, aligner
-
-    orientation_list = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
-    (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
-
-    yaw = math.degrees(yaw)
-    if yaw < 0:
-        yaw += 360
-    yaw = (yaw + aligner) % 360
-
-    imu_heading = 360 - yaw
+    imu_og_input = data
 
 def fix_callback(data):
     global fix_og_input
@@ -97,7 +75,7 @@ def mask():
     global thetas
     global free_ob
     while True:
-        time.sleep(0.2)
+        #time.sleep(0.2)
         wait()
         # if not free_ob:
         #     continue
@@ -128,33 +106,13 @@ def mask():
 	    direction = math.degrees(np.arctan2(y,x))
             print (magnitude, direction)
             pub.publish(masked_laser)
-            ellipticalDiscToSquare(x,y)
         signal()
         # free_ob = True
 
 
 def main():
-    global imu_heading, masked_laser, ls_og_input, precoods, np_ranges, sines, cosines
-
     rospy.Subscriber("scan", LaserScan, ls_callback)
-    rospy.Subscriber("imu_data/raw", Imu, imu_callback)
-    rospy.Subscriber("fix", NavSatFix, fix_callback)
     mask()
-    while True:
-        bearing, dist = get_heading(precoods, endcoods)
-        heading_diff = imu_heading - bearing
-        if abs(heading_diff) >= 90:
-            while abs(heading_diff)>=2.5:
-                match_head(precoods, endcoods, heading_diff)
-                bearing, dist = get_heading(precoods, endcoods)
-                heading_diff = imu_heading - bearing
-                print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
-        elif dist <= 3:
-            print("Reached. Distance remaining",dist)
-            return
-        elif check_clear(np_ranges, ori_card, 0.5, sines, cosines):
-            mask()
-    
     rospy.spin()
 
 if __name__ == '__main__':
