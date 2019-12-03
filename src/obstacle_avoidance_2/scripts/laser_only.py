@@ -97,22 +97,24 @@ def mask():
     global thetas
     global free_ob
     while True:
-        time.sleep(0.2)
+        #time.sleep(0.2)
         wait()
         # if not free_ob:
         #     continue
         # free_ob = False
         masked_laser = ls_og_input
         np_ranges = np.array(ls_og_input.ranges)
+        print("1")
         if np_ranges.shape[0] != 0:
-            p = 16
-            np_ranges[np_ranges>p] = p #
+            p = 32
+            np_ranges[np_ranges>16] =p
+            np_ranges[np_ranges<5] =-20             
             sliced_thetas = thetas[190:911]
             sliced_np_ranges = np_ranges[190:911]
             # sliced_np_ranges[sliced_np_ranges == 0] = 16
             print(np_ranges.shape, sliced_np_ranges.shape, sliced_thetas.shape)
             sliced_np_ranges = cardiod(sliced_np_ranges, sliced_thetas).astype('float32')
-            sliced_np_ranges = sliced_np_ranges/(2*p) #
+            #sliced_np_ranges = sliced_np_ranges/(np.pi*p) #
             # print(sliced_np_ranges.tolist())
             masked_laser.angle_max = np.pi/2
             masked_laser.angle_min = -(np.pi/2)
@@ -121,9 +123,10 @@ def mask():
             # y = np.sum(np_ranges*sines)
             x = np.sum(sliced_np_ranges*cosines[190:911])
             y = np.sum(sliced_np_ranges*sines[190:911])
-            print (np.sqrt(np.square(x) + np.square(y)), math.degrees(np.arctan2(y,x))*8)
+            magnitude = (np.sqrt(np.square(x) + np.square(y))) / (p*np.pi) 
+            direction = math.degrees(np.arctan2(y,x))
+            print (magnitude, direction)
             pub.publish(masked_laser)
-            ellipticalDiscToSquare(x,y)
         signal()
         # free_ob = True
 
