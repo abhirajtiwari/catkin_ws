@@ -13,7 +13,7 @@ from masks import cardiod, nomask
 from tf.transformations import euler_from_quaternion
 from masks import cardiod
 import publish
-from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head, forward
+from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head, forward, clockwise, anticlockwise
 from checkclear import check_clear
 
 
@@ -24,7 +24,7 @@ bearing=0.0
 dist=0.0
 heading_diff=0.0
 precoods = [0, 0]
-endcoods = [13.347528, 74.793088]
+endcoods = [13.348091, 74.791844]
 aligner = 360 - 0
 s=1
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
@@ -92,7 +92,9 @@ def fix_callback(data):
     global bearing, dist
     
     precoods = [data.latitude, data.longitude]
+    
     bearing, dist = get_heading(precoods, endcoods)
+    
 
 #constant matrices for numpy calculations
 thetas = np.arange(-2.39982771873, 2.39982771873, 0.00436332309619)
@@ -113,19 +115,20 @@ def mask():
     # free_ob = False
     masked_laser = ls_og_input
     np_ranges = np.array(ls_og_input.ranges)
-    print("1")
+    
     
     if np_ranges.shape[0] != 0:
         p = 32
         np_ranges[np_ranges>16] =p
-        np_ranges[np_ranges<5] =-20             
+        #np_ranges[np_ranges<5] =-20             
         sliced_thetas = thetas[190:911]
         sliced_np_ranges = np_ranges[190:911]
         #print(sliced_np_ranges[sliced_np_ranges==32].shape)
         # sliced_while True:np_ranges[sliced_np_ranges == 0] = 16
-        print(np_ranges.shape, sliced_np_ranges.shape, sliced_thetas.shape)
+        #print(np_ranges.shape, sliced_np_ranges.shape, sliced_thetas.shape)
         
         sliced_np_ranges = cardiod(sliced_np_ranges, sliced_thetas).astype('float32')
+        sliced_np_ranges[sliced_np_ranges < 5.0] = -20.0
         # sliced_np_ranges = sliced_np_ranges/(np.pi*p) #
         # print(sliced_np_ranges.tolist())
         masked_laser.angle_max = np.pi/2
@@ -138,17 +141,21 @@ def mask():
         y = np.sum(sliced_np_ranges*sines[190:911])
         magnitude = (np.sqrt(np.square(x) + np.square(y))) / (p*np.pi) 
         direction = math.degrees(np.arctan2(y,x))
-        print (magnitude, direction)
+        print ("Magnitude",magnitude,"Direction", direction)
 
         rospy.logdebug("Magnitude- "+ str(magnitude) + " Direction- " + str(direction))
         pub.publish(masked_laser)
 
         print("input",x,y)
         rospy.logdebug("Beforex-"+str(x)+ "y-"+str(y))
+        print("Heading diff",heading_diff)
+        #print(check_clear(np_ranges , ori_card, 1.0, sines, cosines))
         if abs(direction) < 10 and check_clear(np_ranges , ori_card, 1.0, sines, cosines):
+            print('1')
             align(20)
-        elif heading_diff >= 90:
-            align(2.5)
+        elif (abs(heading_diff) >= 90 and abs(heading_diff) < 180) or (abs(heading_diff) <= 270 and abs(heading_diff) > 180):
+            print('2')
+            align(5)
         else:
             ellipticalDiscToSquare(-y, x)
         
@@ -157,7 +164,8 @@ def mask():
 
 def align(buffer):
     global heading_diff, imu_heading, bearing, precoods, endcoods
-    while abs(heading_diff) >= buffer or abs(heading_diff) <= 360-buffer:
+    print("Precoods",precoods, bearing)
+    while abs(heading_diff) >= buffer:
         print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
         match_head(precoods, endcoods, heading_diff)
 
@@ -172,9 +180,11 @@ try:
         mask()
         align(2.5)                
         while True:
+            
             print("Distance remaining",dist)
             if dist <= 3:
                 print("Reached.")
+                brute_stop()
                 return
             else:
                 mask()
@@ -185,4 +195,5 @@ finally:
     brute_stop()
 if __name__ == '__main__':
     main()
+
 
