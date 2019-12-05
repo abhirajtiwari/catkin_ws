@@ -157,7 +157,7 @@ def mask():
         if abs(direction) < 10 and check_clear(np_ranges , ori_card, 1.0, sines, cosines):
             print('1')
             align(20)
-        elif (abs(heading_diff) >= 90 and direction < 20) or (abs(heading_diff) <= 270 and direction > -20):
+        elif (90 <= heading_diff <= 180 and direction > -20 ) or (180 <= heading_diff <= 270 and direction < 20 ):
             align(2.5)
         else:
             ellipticalDiscToSquare(-y, x)
