@@ -17,9 +17,12 @@ from publish import ellipticalDiscToSquare, brute_stop, get_heading, match_head,
 from checkclear import check_clear
 
 
-global endcoods, precoods, imu_heading, np_ranges, sines, cosines
+global endcoods, precoods, imu_heading, np_ranges, sines, cosines, bearing, dist, heading_diff
 np_ranges=np.zeros(1)
 imu_heading=0
+bearing=0.0
+dist=0.0
+heading_diff=0.0
 precoods = [0, 0]
 endcoods = [13.347528, 74.793088]
 aligner = 360 - 0
@@ -72,9 +75,7 @@ def join():
     # ls_og_input.ranges = (np.array(ls_1_og_input.ranges) + np.array(ls_2_og_input.ranges)).tolist()
 
 def imu_callback(msg):
-    global imu_og_input
-    imu_og_input = msg
-    global imu_heading, aligner
+    global bearing, dist, heading_diff, imu_heading, aligner
 
     orientation_list = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
     (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
@@ -85,10 +86,13 @@ def imu_callback(msg):
     yaw = (yaw + aligner) % 360
 
     imu_heading = 360 - yaw
+    heading_diff = imu_heading - bearing
 
 def fix_callback(data):
-    global fix_og_input
-    fix_og_input = data
+    global bearing, dist
+    
+    precoods = [data.latitude, data.longitude]
+    bearing, dist = get_heading(precoods, endcoods)
 
 #constant matrices for numpy calculations
 thetas = np.arange(-2.39982771873, 2.39982771873, 0.00436332309619)
@@ -97,9 +101,8 @@ sines = np.sin(thetas)
 ori_card=np.ones(1101)*8
 
 def mask():
-    global masked_laser, ls_og_input
-    global thetas
-    global free_ob
+    global masked_laser, ls_og_input, thetas, free_ob
+    global imu_heading, ls_og_input, precoods, np_ranges, sines, cosines, ori_card, heading_diff
     x=0
     y=0
     
@@ -135,52 +138,44 @@ def mask():
         y = np.sum(sliced_np_ranges*sines[190:911])
         magnitude = (np.sqrt(np.square(x) + np.square(y))) / (p*np.pi) 
         direction = math.degrees(np.arctan2(y,x))
-	
         print (magnitude, direction)
-        '''if (direction<10 and direction>-10):
-            forward()
-            return
-           ''' 
+
         rospy.logdebug("Magnitude- "+ str(magnitude) + " Direction- " + str(direction))
         pub.publish(masked_laser)
-    
+
         print("input",x,y)
         rospy.logdebug("Beforex-"+str(x)+ "y-"+str(y))
-        ellipticalDiscToSquare(-y, x)
+        if abs(direction) < 10 and check_clear(np_ranges , ori_card, 1.0, sines, cosines):
+            align(20)
+        elif heading_diff >= 90:
+            align(2.5)
+        else:
+            ellipticalDiscToSquare(-y, x)
         
     signal()
         # free_ob = True
 
+def align(buffer):
+    global heading_diff, imu_heading, bearing, precoods, endcoods
+    while abs(heading_diff) >= buffer or abs(heading_diff) <= 360-buffer:
+        print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
+        match_head(precoods, endcoods, heading_diff)
+
 try:
     def main():
-        global imu_heading, masked_laser, ls_og_input, precoods, np_ranges, sines, cosines,ori_card
+        global dist
 
         rospy.Subscriber("scan", LaserScan, ls_callback)
         rospy.Subscriber("imu_data/raw", Imu, imu_callback)
         rospy.Subscriber("fix", NavSatFix, fix_callback)
+        #while True:
+        mask()
+        align(2.5)                
         while True:
-            mask()
-        bearing, dist = get_heading(precoods, endcoods)
-        heading_diff = imu_heading - bearing
-        while abs(heading_diff)>=2.5:
-            bearing, dist = get_heading(precoods, endcoods)
-            heading_diff = imu_heading - bearing
-            print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
-            match_head(precoods, endcoods, heading_diff)
-        
-        while True:
-            bearing, dist = get_heading(precoods, endcoods)
-            heading_diff = imu_heading - bearing
-            print(heading_diff)
+            print("Distance remaining",dist)
             if dist <= 3:
-                print("Reached. Distance remaining",dist)
+                print("Reached.")
                 return
-            elif abs(heading_diff) >= 90:
-                while abs(heading_diff)>=2.5:
-                    bearing, dist = get_heading(precoods, endcoods)
-                    heading_diff = imu_heading - bearing
-                    print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
-                    match_head(precoods, endcoods, heading_diff)
             else:
                 mask()
         

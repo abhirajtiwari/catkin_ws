@@ -20,7 +20,7 @@ def ellipticalDiscToSquare(u,v):
     '''if math.degrees(math.atan2(v,u))>90:
         anticlockwise()
         return
-    elif math.degrees(math.atan2(v,u))<-90:
+    elif math.degrees(math.atan2(v,u))< -90:
         clockwise()
         return'''
     rang = ((u**2)+(v**2))**0.5
