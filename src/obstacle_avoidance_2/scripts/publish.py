@@ -6,8 +6,8 @@ import pyproj
 import serial
 global st_gear, turn_gear
 import math
-st_gear=4
-turn_gear=7
+st_gear=7
+turn_gear=10
 pub_j = rospy.Publisher('joystick_encoder', String, queue_size=10)
 g = pyproj.Geod(ellps='WGS84')
 #Basic Map function
@@ -73,18 +73,15 @@ def get_heading(start, end):
 def match_head(start, end, heading_diff):
     global st_gear, turn_gear
     if abs(heading_diff) <= 30 or abs(heading_diff) >= 330:
-        turn_gear=5
+        turn_gear=4
     elif abs(heading_diff) <= 20 or abs(heading_diff) >= 340:
-        turn_gear=3
+        turn_gear=2
     elif abs(heading_diff) <= 10 or abs(heading_diff) >= 350:
         turn_gear=2
     else:
         turn_gear=7
-    if heading_diff <= 0 and heading_diff >= -180:
-        clockwise()
-    elif heading_diff < -180:
-        anticlockwise()
-    elif heading_diff >= 0 and heading_diff < 180:
+    
+    if heading_diff >= 0 and heading_diff < 180:
         anticlockwise()             
     elif heading_diff >= 180:
         clockwise()
