@@ -9,6 +9,7 @@ def diff(op1,op2,start,end,sines,coses):
 	sin_comps= op1*sines[start:end]-op2*sines[start:end]
 	cos_comps=op1*coses[start:end]-op2*coses[start:end]
 	mag=(np.sum(sin_comps)**2+np.sum(cos_comps)**2)**0.5
+	print("difference mag",mag)
 	return mag
 
 def check_clear(cardiod,ori_card,clear_thresh,sines,cosines):
