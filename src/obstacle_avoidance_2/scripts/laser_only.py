@@ -24,7 +24,9 @@ bearing=0.0
 dist=0.0
 heading_diff=0.0
 precoods = [0, 0]
-endcoods = [13.348091, 74.791844]
+#endcoods = [13.348091, 74.791844]
+endcoods = [13.3475449, 74.7920938] #home
+#endcoods = [13.3480048, 74.7918997] 
 aligner = 360 - 0
 s=1
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
@@ -87,6 +89,8 @@ def imu_callback(msg):
 
     imu_heading = 360 - yaw
     heading_diff = imu_heading - bearing
+    if heading_diff < 0:
+        heading_diff = heading_diff + 360
 
 def fix_callback(data):
     global bearing, dist
@@ -153,9 +157,8 @@ def mask():
         if abs(direction) < 10 and check_clear(np_ranges , ori_card, 1.0, sines, cosines):
             print('1')
             align(20)
-        elif (abs(heading_diff) >= 90 and abs(heading_diff) < 180) or (abs(heading_diff) <= 270 and abs(heading_diff) > 180):
-            print('2')
-            align(5)
+        elif (abs(heading_diff) >= 90 and direction < 20) or (abs(heading_diff) <= 270 and direction > -20):
+            align(2.5)
         else:
             ellipticalDiscToSquare(-y, x)
         

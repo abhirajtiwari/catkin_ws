@@ -81,7 +81,7 @@ def match_head(start, end, heading_diff):
     else:
         turn_gear=7
     
-    if heading_diff >= 0 and heading_diff < 180:
+    if heading_diff < 180:
         anticlockwise()             
     elif heading_diff >= 180:
         clockwise()
