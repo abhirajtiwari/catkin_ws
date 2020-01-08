@@ -24,8 +24,8 @@ bearing=0.0
 dist=0.0
 heading_diff=0.0
 precoods = [0, 0]
-endcoods = [13.3480430, 74.7919279]
-#endcoods = [13.3475449, 74.7920938] #home
+#endcoods = [13.3480430, 74.7919279]
+endcoods = [13.3475449, 74.7920938] #home
 #endcoods = [13.3480048, 74.7918997] 
 aligner = 360 - 0
 s=1
@@ -120,7 +120,6 @@ def mask():
     masked_laser = ls_og_input
     np_ranges = np.array(ls_og_input.ranges)
     
-    
     if np_ranges.shape[0] != 0:
         p = 32
         np_ranges[np_ranges>16] =p
@@ -154,10 +153,21 @@ def mask():
         rospy.logdebug("Beforex-"+str(x)+ "y-"+str(y))
         print("Heading diff",heading_diff)
         #print(check_clear(np_ranges , ori_card, 1.0, sines, cosines))
+
+        # x_comps = np_ranges*cosines
+        # y_comps = np_ranges*sines
+        # l_ang = np.arctan2(np.sum(y_comps[]), np.sum(x_comps[]))
+        # r_ang = np.arctan2(np.sum(y_comps[]), np.sum(x_comps[]))
+
+        right_part = np_ranges[187:193] #12 is approx middle
+        left_part = np_ranges[-193:-187]
+
         if abs(direction) < 10 and check_clear(np_ranges , ori_card, 1.0, sines, cosines):
             print('1')
             align(20)
-        elif (90 <= heading_diff <= 180 and direction > -20 ) or (180 <= heading_diff <= 270 and direction < 20 ):
+        # elif (90 <= heading_diff <= 180 and direction > -20 ) or (180 <= heading_diff <= 270 and direction < 20 ):
+        # elif (90 <= heading_diff <= 180 and 85 <= l_ang <= 95 and ) or (180 <= heading_diff <= 270 and -95 <= r_ang <= -85 and ):
+        elif (90 <= heading_diff <= 180 and np.mean(left_part) >= 6) or (180 <= heading_diff <= 270 and np.mean(right_part) >= 6):
             align(2.5)
         else:
             ellipticalDiscToSquare(-y, x)
@@ -166,10 +176,16 @@ def mask():
         # free_ob = True
 
 def align(buffer):
-    global heading_diff, imu_heading, bearing, precoods, endcoods
+    global heading_diff, imu_heading, bearing, precoods, endcoods,np_ranges
     print("Precoods",precoods, bearing)
+    print (heading_diff)
     while abs(heading_diff) >= buffer:
         print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
+        right_part = np_ranges[187:193] #12 is approx middle
+        left_part = np_ranges[-193:-187]
+        if (heading_diff <=180 and np.mean(left_part) <= 8) or (180<heading_diff and np.mean(right_part) <= 8):
+            print("exiting.............")
+            return
         match_head(precoods, endcoods, heading_diff)
 
 try:
@@ -179,11 +195,12 @@ try:
         rospy.Subscriber("scan", LaserScan, ls_callback)
         rospy.Subscriber("imu_data/raw", Imu, imu_callback)
         rospy.Subscriber("fix", NavSatFix, fix_callback)
+        time.sleep(1)
         #while True:
         mask()
         align(2.5)                
         while True:
-            
+            print("\n") 
             print("Distance remaining",dist)
             if dist <= 3:
                 print("Reached.")
@@ -198,5 +215,6 @@ finally:
     brute_stop()
 if __name__ == '__main__':
     main()
+
 
 
