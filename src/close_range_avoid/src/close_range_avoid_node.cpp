@@ -30,13 +30,16 @@ void countObstacles (const sensor_msgs::PointCloud2::ConstPtr& icloud) {
 	//make z = 0
     int p_count=0,n_count=0,it_count=0;
 	for (auto p : input_cloud->points) {
-	if(p.x<0)
+	//std::cout<<p.z<<"\n";
+	if(p.x<0 && p.z<3)
 		n_count++;
-	else 
+	else if(p.x>=0 && p.z<3)
 		p_count++;
+	if(p.z<3)
 	it_count++;
 	}
-	if (it_count==0)
+	std::cout<<it_count<<"\n";
+	if (it_count<100)
 		{std::cout<<"straight";
 			msg.data="straight";}
 	else if (n_count>p_count)
@@ -59,4 +62,3 @@ int main(int argc, char **argv) {
 	ros::spin();
 	return 0;
 }
-
