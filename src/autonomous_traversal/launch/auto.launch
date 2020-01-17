@@ -1,0 +1,7 @@
+<?xml version=2.0?>
+<launch>
+	<include file="$(find teleoperation)/launch/imu_gps_drive.launch"/>
+	<include file="$(find sick_scan)/launch/sick_mrs_1xxx.launch"/>
+    <node name="console" pkg="rqt_console" type="rqt_console"/>
+</launch>
+
