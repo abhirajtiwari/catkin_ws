@@ -24,10 +24,6 @@ bearing=0.0
 dist=0.0
 heading_diff=0.0
 precoods = [0, 0]
-#endcoods = [13.3475449, 74.7920938] #home
-#endcoods = [13.348080, 74.792655] #parking lot N
-#endcoods = [13.347486, 74.792730] #kc gate
-endcoods = [13.3476127, 74.7928378] #kc gate 2 deeper
 aligner = 360 - 0
 s=1
 rospy.init_node("obs_av", anonymous=True, disable_signals=True)
@@ -124,8 +120,7 @@ def mask():
     if np_ranges.shape[0] != 0:
         p = 32
         np_ranges[np_ranges>16] =p
-        np_ranges[np_ranges==0]=p
-        print ("Number of 4s = ", (np_ranges <= 4).sum())
+
         #np_ranges[np_ranges<5] =-20             
         sliced_thetas = thetas[190:911]
         sliced_np_ranges = np_ranges[190:911]
@@ -134,7 +129,7 @@ def mask():
         #print(np_ranges.shape, sliced_np_ranges.shape, sliced_thetas.shape)
         
         sliced_np_ranges = cardiod(sliced_np_ranges, sliced_thetas).astype('float32')
-        sliced_np_ranges[sliced_np_ranges < 6.0] = -40.0
+
         # sliced_np_ranges = sliced_np_ranges/(np.pi*p) #
         # print(sliced_np_ranges.tolist())
         masked_laser.angle_max = np.pi/2
@@ -164,8 +159,7 @@ def mask():
 
         right_part = np_ranges[187:193] #12 is approx middle
         left_part = np_ranges[-193:-187]
-        if abs(direction)<=10:
-            direction=0
+
         if abs(direction) < 10 and check_clear(np_ranges , ori_card, 1.0, sines, cosines):
             print('1')
             align(20)
@@ -187,7 +181,7 @@ def align(buffer):
         print("Heading",imu_heading,"Bearing",bearing,"Difference",heading_diff),
         right_part = np_ranges[187:193] #12 is approx middle
         left_part = np_ranges[-193:-187]
-        if (heading_diff <=180 and 0 < np.mean(left_part) <= 8) or (180<heading_diff and 0 <np.mean(right_part) <= 8):
+
             print("exiting.............")
             return
         match_head(precoods, endcoods, heading_diff)
@@ -219,3 +213,4 @@ finally:
     brute_stop()
 if __name__ == '__main__':
     main()
+

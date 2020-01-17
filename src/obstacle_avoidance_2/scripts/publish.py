@@ -6,9 +6,9 @@ import pyproj
 import serial
 global st_gear, turn_gear
 import math
-st_gear=4
-turn_gear=7
-pub_j = rospy.Publisher('joystick_encoded', String, queue_size=10)
+st_gear=7
+turn_gear=10
+pub_j = rospy.Publisher('joystick_encoder', String, queue_size=10)
 g = pyproj.Geod(ellps='WGS84')
 #Basic Map function
 def map1(x,in_min,in_max,out_min,out_max):
@@ -20,7 +20,7 @@ def ellipticalDiscToSquare(u,v):
     '''if math.degrees(math.atan2(v,u))>90:
         anticlockwise()
         return
-    elif math.degrees(math.atan2(v,u))<-90:
+    elif math.degrees(math.atan2(v,u))< -90:
         clockwise()
         return'''
     rang = ((u**2)+(v**2))**0.5
@@ -73,14 +73,15 @@ def get_heading(start, end):
 def match_head(start, end, heading_diff):
     global st_gear, turn_gear
     if abs(heading_diff) <= 30 or abs(heading_diff) >= 330:
-        turn_gear=5
-    elif abs(heading_diff) <= 10 or abs(heading_diff) >= 350:
         turn_gear=4
-    if heading_diff <= 0 and heading_diff >= -180:
-        clockwise()
-    elif heading_diff < -180:
-        anticlockwise()
-    elif heading_diff >= 0 and heading_diff < 180:
+    elif abs(heading_diff) <= 20 or abs(heading_diff) >= 340:
+        turn_gear=2
+    elif abs(heading_diff) <= 10 or abs(heading_diff) >= 350:
+        turn_gear=2
+    else:
+        turn_gear=7
+    
+    if heading_diff < 180:
         anticlockwise()             
     elif heading_diff >= 180:
         clockwise()
@@ -89,7 +90,7 @@ ob1  =  String()
 def joystick_decoder(x_joy,y_joy,gear,hill_assist):
     global ob1
     ob1.data = "{} {} {}".format(x_joy, y_joy, gear)
-    print("ob1 " + ob1.data)
+    #print("ob1 " + ob1.data)
     pub_j.publish(ob1)
 '''
     gear_pack = 0b00000001
