@@ -18,12 +18,12 @@ void apply_filters(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
     pcl_conversions::toPCL(*cloud_msg, *cloud);
 
     //remove statistical outliers
-    // pcl::StatisticalOutlierRemoval<pcl::PCLPointCloud2> sor;
-    // sor.setInputCloud(cloudPtr);
-    // sor.setMeanK(10);
-    // sor.setStddevMulThresh(1.0);
-    // sor.filter(cloud_filtered);
-
+    /*pcl::StatisticalOutlierRemoval<pcl::PCLPointCloud2> sor;
+    sor.setInputCloud(cloudPtr);
+    sor.setMeanK(10);
+    sor.setStddevMulThresh(1.0);
+    sor.filter(cloud_filtered);
+*/
     //Voxel Filter
     pcl::VoxelGrid<pcl::PCLPointCloud2> voxel_filter;
     voxel_filter.setInputCloud(cloudPtr);
