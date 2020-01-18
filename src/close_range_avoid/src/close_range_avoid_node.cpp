@@ -30,9 +30,9 @@ void countObstacles (const sensor_msgs::PointCloud2::ConstPtr& icloud) {
 	//make z = 0
     int p_count=0,n_count=0,it_count=0;
 	for (auto p : input_cloud->points) {
-	if(p.x<0)
+	if(p.x<0 && p.z<300)
 		n_count++;
-	else 
+	else if(p.x>=0 && p.z<300)
 		p_count++;
 	it_count++;
 	}

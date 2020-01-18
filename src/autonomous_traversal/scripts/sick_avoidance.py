@@ -22,6 +22,12 @@ class SickAvoider:
         self.sines = np.sin(self.thetas)
         # self._lock = threading.Lock()
 
+    def cardiod(self, a, thetas):
+        return a*(1+np.cos(thetas))
+
+    def nomask(self, a, thetas):
+        return a
+
     def call_back(self, data):
         if data.header.frame_id == 'cloud_POS_000_DIST1':
             self.np_ranges = np.array(data.ranges)
@@ -29,7 +35,7 @@ class SickAvoider:
             self.np_ranges[self.np_ranges==0] = self.p
             sliced_thetas = self.thetas[190:911]
             sliced_np_ranges = self.np_ranges[190:911]
-            sliced_np_ranges = cardiod(sliced_np_ranges, sliced_thetas).astype('float32')
+            sliced_np_ranges = self.cardiod(sliced_np_ranges, sliced_thetas).astype('float32')
             sliced_np_ranges[sliced_np_ranges < 5.0] = -20.0
             self.x = np.sum(sliced_np_ranges*self.cosines[190:911])
             self.y = np.sum(sliced_np_ranges*self.sines[190:911])

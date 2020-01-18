@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/gauravkh/rhinoceROS/devel/include/**",
+                "/home/gauravkh/catkin_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/gauravkh/catkin_ws/src/ball_detector/include/**",
+                "/home/gauravkh/catkin_ws/src/realsense-ros/realsense2_camera/include/**",
+                "/home/gauravkh/rhinoceROS/src/realsense_gazebo_plugin/include/**",
+                "/home/gauravkh/catkin_ws/src/serial/include/**",
+                "/home/gauravkh/catkin_ws/src/skid_velocity_control/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
