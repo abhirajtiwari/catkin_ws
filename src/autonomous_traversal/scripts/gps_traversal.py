@@ -13,6 +13,7 @@ class GPSTraversal:
         self.bearing = None
         self.dist = None
         self.endcoods = None
+        self.turn_gear = 10
         self.imu_sub = rospy.Subscriber("imu_data/raw", Imu, self.imu_callback)
         self.gps_sub = rospy.Subscriber("fix", NavSatFix, self.fix_callback)
         self.main()
@@ -44,7 +45,13 @@ class GPSTraversal:
            az12=az12+360
         return az12,dist 
     
-    def main(self):
-        while True:
-            self.
+    def set_gear(self, head_diff):
+        if abs(head_diff) <= 30 or abs(head_diff) >= 330:
+            self.turn_gear=4
+        elif abs(head_diff) <= 20 or abs(head_diff) >= 340:
+            self.turn_gear=2
+        elif abs(head_diff) <= 10 or abs(head_diff) >= 350:
+            self.turn_gear=2
+        else:
+            self.turn_gear=7
         
