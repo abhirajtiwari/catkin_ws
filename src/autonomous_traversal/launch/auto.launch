@@ -2,6 +2,8 @@
 <launch>
 	<include file="$(find teleoperation)/launch/imu_gps_drive.launch"/>
 	<include file="$(find sick_scan)/launch/sick_mrs_1xxx.launch"/>
+	<node name="gps_traversal" pkg="autonomous_traversal" type="gps_traversal.py"/>
+	<node name="sick_avoidance" pkg="autonomous_traversal" type="sick_avoidance.py"/>
     <node name="console" pkg="rqt_console" type="rqt_console"/>
 </launch>
 
