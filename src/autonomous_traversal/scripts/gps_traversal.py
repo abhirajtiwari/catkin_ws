@@ -54,4 +54,11 @@ class GPSTraversal:
             self.turn_gear=2
         else:
             self.turn_gear=7
-        
+    
+    def match_head(self):
+        set_gear(self.heading_diff)
+        if self.heading_diff<180 :
+            #turn anticlockwise add pub
+        elif self.heading_diff>=180:
+            #Turn Clockwise add pub
+
