@@ -55,3 +55,11 @@ class GPSTraversal:
         else:
             self.turn_gear=7
         
+
+if __name__ == '__main__':
+    pub = rospy.Publisher("gps_cmd", String, queue_size = 10)
+    rospy.init_node("gps_traversal")
+    ob = GPSTraversal()
+    while True:
+        pub.publish(ob.align())
+
