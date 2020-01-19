@@ -55,10 +55,21 @@ class GPSTraversal:
         else:
             self.turn_gear=7
     
-    def match_head(self):
+    def match_head_cmds(self):
         set_gear(self.heading_diff)
         if self.heading_diff<180 :
             #turn anticlockwise add pub
         elif self.heading_diff>=180:
             #Turn Clockwise add pub
+
+    def align(self,buffer,range_data):
+        print("Aligning rover",self.heading_diff)
+        while abs(self.heading_diff)>=buffer:
+            right_part = range_data[187:193] #12 is approx middle
+            left_part = range_data[-193:-187]
+            if (heading_diff <=180 and np.mean(left_part) <= 8) or (180<heading_diff and np.mean(right_part) <= 8):
+                print("exiting.............")
+                return
+            match_head()
+
 
