@@ -8,12 +8,15 @@ from sensor_msgs.msg import String
 import numpy as np
 from masks import cardiod
 
+from autonomous_traversal.srv import ClearService, ClearServiceResponse
+
 
 class SickAvoider:
     def __init__(self):
         self.np_ranges = None
         self.laser_subscriber = rospy.Subscriber("/scan", LaserScan, self.call_back)
         self.pub = rospy.Publisher("sick_cmd", String, queue_size=10)
+        self.service = rospy.Service('check_clear', ClearService, self.clear_service_callback)
         self.p = rospy.get_param('laser_max', 32)
         self.x = self.y = 0
         self.direction = self.magnitude = 0
@@ -21,6 +24,17 @@ class SickAvoider:
         self.cosines = np.cos(self.thetas)
         self.sines = np.sin(self.thetas)
         # self._lock = threading.Lock()
+
+    def clear_service_callback(self,req):
+        req.angle = 180 - req.angle
+        mid = int(req.angle * 1101/275)
+        left = 0 if mid-8<0 else mid-8
+        right = 1100 if mid+8>0 else mid+8
+        if self.np_ranges is not None:
+            if np.mean(self.np_ranges[left:right]) < 4: #Teakable param here
+                return ClearServiceResponse(0)
+            else return ClearServiceResponse(1)
+        else return ClearServiceResponse(1)
 
     def cardiod(self, a, thetas):
         return a*(1+np.cos(thetas))
