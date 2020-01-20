@@ -3,6 +3,7 @@ import rospy
 import numpy as np
 import math
 from tf.transformations import euler_from_quaternion
+from autonomous_traversal.srv import *
 
 
 class GPSTraversal:
@@ -64,7 +65,16 @@ class GPSTraversal:
 
     def align(self,buf):
         rospy.logdebug("Aligning rover %f",self.heading_diff)
+        try:
+            ccserviceProxy = rospy.ServiceProxy('check_clear', ClearService)
+        except:
+            side_clear = 1
         while abs(self.heading_diff) >= buf:
+            try:
+                side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90)
+            except:
+                side_clear = 1
+            if side_clear != 1 break
             self.match_head_cmds()
 
 if __name__ == '__main__':
