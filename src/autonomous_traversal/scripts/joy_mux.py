@@ -32,7 +32,7 @@ class JoyMux:
 
     def sick_callback(self, data):
         self.sick_data = list(map(int, data.data.split()))
-    
+
     def gps_callback(self, data):
         self.gps_data = 
 
@@ -63,25 +63,25 @@ class JoyMux:
     def start(self):
 
         while True:
-        	if self.rs_data is not None:
-		        self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
+            if self.rs_data is not None:
+                self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
             if self.sick_data is not None:
-		        self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
+                self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
 
             if self.rs_data!=None or self.sick_data!=None:
-        		#destroy turn values within 5degs
-		        #realsense algo primitive 
-		        if self.rs_data[2] == 90 :
-		        	while self.rs_data[2] != 0:
-		        		#send hard left turn 
-		        elif self.rs_data[2] == -90:
-		        	while self.rs_data!=0:
-		        		#send hard right turn
-		        #Lidar avoidance starts
-		    	else:
+                #destroy turn values within 5degs
+                #realsense algo primitive 
+                if self.rs_data[2] == 90 :
+                    while self.rs_data[2] != 0:
+                        #send hard left turn 
+                elif self.rs_data[2] == -90:
+                    while self.rs_data!=0:
+                        #send hard right turn
+                #Lidar avoidance starts
+            else:
 
-if __name__ == '__main__':
-    rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
+                if __name__ == '__main__':
+                    rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
     mux_obj=JoyMux()
     rospy.spin()
 
