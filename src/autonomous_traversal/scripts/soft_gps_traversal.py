@@ -74,7 +74,8 @@ class GPSTraversal:
                 side_clear = ccserviceProxy(-90 if (180 >= self.heading_diff >= 90) else 90 if (-180 <= self.heading_diff <= -90) else self.heading_diff)
             except:
                 side_clear = 1
-            if side_clear != 1 break
+            if side_clear != 1: 
+                break
             self.match_head_cmds()
 
 if __name__ == '__main__':
