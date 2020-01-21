@@ -61,7 +61,7 @@ class GPSTraversal:
             return #hardturn
         elif -180 <= self.heading_diff <= -90:
             return #hardturn
-        else return math.cos(self.heading_diff), math.sin(self.heading_diff)
+        else return #math.cos(self.heading_diff), math.sin(self.heading_diff)
 
     def align(self,buf):
         rospy.logdebug("Aligning rover %f",self.heading_diff)
@@ -71,7 +71,7 @@ class GPSTraversal:
             side_clear = 1
         while abs(self.heading_diff) >= buf:
             try:
-                side_clear = ccserviceProxy(-90 if (180 >= self.heading_diff >= 90) else 90 if (-180 <= self.heading_diff <= -90) else self.heading_diff)
+                side_clear = ccserviceProxy(90 if (180 >= self.heading_diff >= 90) else -90 if (-180 <= self.heading_diff <= -90) else self.heading_diff)
             except:
                 side_clear = 1
             if side_clear != 1 break
