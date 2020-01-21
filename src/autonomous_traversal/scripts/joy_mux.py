@@ -20,8 +20,9 @@ class JoyMux:
         self.sick_data = None
         self.gps_data = None
         #self.prev_rs_data=None 
-        self.rs_sub = rospy.Subscriber('', String, queue_size = 10)
-        self.sick_sub = rospy.Subscriber('sick_cmd', String, queue_size = 10)
+        self.rs_sub = rospy.Subscriber('', String, self.rs_callback)
+        self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
+        self.gps_sub = rospy.Subscriber('gps_cmd', String, self.gps_callback)
         self.gps_ob = GPSTraversal()
 
         self.start()
@@ -30,7 +31,10 @@ class JoyMux:
         self.rs_data = list(map(int, data.data.split()))
 
     def sick_callback(self, data):
-        self.gps_data = list(map(int, data.data.split()))
+        self.sick_data = list(map(int, data.data.split()))
+    
+    def gps_callback(self, data):
+        self.gps_data = 
 
     def send_cmd(self, u, v, gear):
 
@@ -59,7 +63,7 @@ class JoyMux:
     def start(self):
 
         while True:
-            if self.rs_data is not None:
+        	if self.rs_data is not None:
 		        self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
             if self.sick_data is not None:
 		        self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
