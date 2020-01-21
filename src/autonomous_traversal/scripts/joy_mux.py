@@ -28,13 +28,13 @@ class JoyMux:
         self.start()
 
     def rs_callback(self, data):
-        self.rs_data = list(map(int, data.data.split()))
+        self.rs_data = list(map(float, data.data.split()))
 
     def sick_callback(self, data):
-        self.sick_data = list(map(int, data.data.split()))
+        self.sick_data = list(map(float, data.data.split()))
 
     def gps_callback(self, data):
-        self.gps_data =
+        self.gps_data = list(map(float, data.data.split()))
 
     def send_cmd(self, u, v, gear):
 
@@ -64,9 +64,12 @@ class JoyMux:
 
         while True:
             #Destroy degree data less than 5degs
+
             if self.rs_data is not None: #rs_data
                 self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
-                self.send_cmd(self.rs_data[1]*np.cos(self.rs_data[2]), self.rs_data[1]*np.sin(self.rs_data[2]), self.rs_data[3])
+                if self.rs_data[2] != 0: 
+                    self.send_cmd(self.rs_data[1]*np.cos(self.rs_data[2]), self.rs_data[1]*np.sin(self.rs_data[2]), self.rs_data[3])
+                    continue
 
             # if self.rs_data is not None: #Realsense
             #     if self.rs_data[2] == 90 :
@@ -76,11 +79,17 @@ class JoyMux:
             #         while self.rs_data!=0:
             #             #send hard right turn
 
-            elif self.sick_data is not None: #Sick data
-                self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]            
-                self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
+            if self.sick_data is not None: #Sick data
+                self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
+                if self.sick_data != 0:
+                    self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
+                    continue
 
-            else: #GPS
+            if self.gps_data is not None:
+                self.gps_data[2] = 0 if (abs(self.gps_data[2]) <= 5) else self.gps_data[2]
+                if self.gps_data != 0:
+                    self.send_cmd(self.gps_data[1]*np.cos(self.gps_data[2]), self.gps_data[1]*np.sin(self.gps_data[2]), self.gps_data[3])
+                    continue
                 #start gps code
 
 if __name__ == '__main__':
