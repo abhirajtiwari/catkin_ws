@@ -59,13 +59,12 @@ class JoyMux:
 
     def start(self):
         while True:
-        
-        	if self.rs_data!=None or self.sick_data!=None
-        		#destroy turn values within 5degs
-		        self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
-		        self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
-		        #realsense algo primitive 
-		        if self.rs_data[2] != 0 :
+            if self.rs_data!=None or self.sick_data!=None
+                #destroy turn values within 5degs
+                self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
+                self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
+                #realsense algo primitive 
+                if self.rs_data[2] != 0 :
 
 if __name__ == '__main__':
     rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
