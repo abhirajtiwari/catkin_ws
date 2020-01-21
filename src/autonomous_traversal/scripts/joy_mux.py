@@ -12,7 +12,7 @@ from gps_traversal.py import GPSTraversal
 class JoyMux:
     '''
     Let all the data be numpy arrays converted to string having 3 fields
-    priority | r | theta
+    priority | r | theta | gear
     priority be just an extensible feature to be added later could be used for overriding
     '''
     def __init__(self):
@@ -33,7 +33,29 @@ class JoyMux:
     def sick_callback(self, data):
         self.gps_data = list(map(int, data.data.split()))
 
-    def ellipticalDisctoSquare(self, x, y):
+    def send_cmd(self, u, v, gear):
+
+        def map1(x,in_min,in_max,out_min,out_max):
+            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+        rang = ((u**2)+(v**2))**0.5
+        u = map1 (u, -rang, rang, -1, 1)
+        v = map1 (v, -rang, rang, -1, 1)
+        u2 = u * u
+        v2 = v * v
+        twosqrt2 = 2.0 * (2.0)**(0.5)
+        subtermx = 2.0 + u2 - v2
+        subtermy = 2.0 - u2 + v2
+        termx = subtermx + u * twosqrt2
+        termx2 = subtermx - u * twosqrt2
+        termy = subtermy + v * twosqrt2
+        termy2 = subtermy - v * twosqrt2
+        x = 0.5 * (termx)**(0.5) - 0.5 * (termx2)**(0.5)
+        y = 0.5 * (termy)**(0.5) - 0.5 * (termy2)**(0.5)
+        x = map1(x, -1, 1, -8000, 8000) + 8000
+        y = 8000 + map1(y, -1, 1, -8000, 8000)
+        rospy.logdebug("Joystick x-"+str(x)+ "y-"+str(y))
+        ser.write('m' + gear + 's' + str(x).zfill(5) + 'f' + str(y).zfill(5) + 'n') #write serial data
 
     def start(self):
         
@@ -43,8 +65,6 @@ class JoyMux:
 
         #just before serial write fill these
         rospy.logdebug()
-
-
     
 
 if __name__ == '__main__':
