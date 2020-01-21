@@ -67,10 +67,10 @@ class JoyMux:
             if self.rs_data!=None or self.sick_data!=None:
         		#destroy turn values within 5degs
 		        #realsense algo primitive 
-		        if self.rs_data == 90 :
-		        	while self.rs_data != 0:
+		        if self.rs_data[2] == 90 :
+		        	while self.rs_data[2] != 0:
 		        		#send hard left turn 
-		        elif self.rs_data == -90:
+		        elif self.rs_data[2] == -90:
 		        	while self.rs_data!=0:
 		        		#send hard right turn
 		        #Lidar avoidance starts
