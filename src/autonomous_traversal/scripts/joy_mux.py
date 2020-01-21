@@ -79,9 +79,10 @@ class JoyMux:
                         #send hard right turn
                 #Lidar avoidance starts
             else:
+                #comment
 
-                if __name__ == '__main__':
-                    rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
+if __name__ == '__main__':
+    rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
     mux_obj=JoyMux()
     rospy.spin()
 
