@@ -22,10 +22,11 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <std_msgs/String.h>
 #include <sstream>
-
+#include<string>
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-
 boost::shared_ptr<pcl::visualization::PCLVisualizer>
+string prev_str="straight";
+
 simpleVis(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
 {
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer("3D Viewer"));
@@ -60,6 +61,7 @@ void callback(const PointCloud::ConstPtr& msg)
   //pass1.filter (*cloud_pass1);
   ROS_INFO("I heard: [%d] [%d]",cloud_pass1->width, cloud_pass1->height);
   std::cout<<"pass done\n";
+
   pcl::VoxelGrid<pcl::PointXYZ> vox;
   vox.setInputCloud (cloud_pass);
   vox.setLeafSize (0.04f, 0.04f, 0.04f);
@@ -130,6 +132,7 @@ void callback(const PointCloud::ConstPtr& msg)
     xcor.push_back(row2);
     //}
   }
+  string curr_str;
   std::cout<<endl<<j<<endl;
   std::stringstream ss;
   std_msgs::String kin_val;
@@ -144,6 +147,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             std::cout<<"left\n";
 	    ss << "left";
+      curr_str="left";
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -151,6 +155,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             std::cout<<"right\n";
     	    ss << "right";
+          curr_str="right"
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -158,9 +163,29 @@ void callback(const PointCloud::ConstPtr& msg)
 	//else
        }
 	std::cout<<"straight\n";
+  //current
 	ss << "straight";
+  curr_str="straight";
   	kin_val.data = ss.str();
-      label:
+  label:
+  // if the curr!=straight
+  if (strcmp(curr_str,"straight"))
+  { 
+    if (strcmp("straight",prev_str))
+    {
+      kin_val.data=curr_str;
+      prev_str=curr_str;
+    }
+    else{
+      kin_val.data=prev_str;
+    }
+
+  }
+  else
+  {
+    kin_val.data=curr_str;
+    prev_str=curr_str;
+  }
 	pub.publish(kin_val);
   /*viewer = simpleVis(cloud_cluster);  
   //viewer = simpleVis(cloud_vox);  
