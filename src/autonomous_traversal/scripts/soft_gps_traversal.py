@@ -14,6 +14,7 @@ class GPSTraversal:
         self.bearing = None
         self.dist = None
         self.endcoods = None
+        self.hard_turn_min = 90
         self.turn_gear = 10
         self.imu_sub = rospy.Subscriber("imu_data/raw", Imu, self.imu_callback)
         self.gps_sub = rospy.Subscriber("fix", NavSatFix, self.fix_callback)
@@ -57,7 +58,7 @@ class GPSTraversal:
 
     def match_head_cmds(self):
         self.set_gear()
-        if 90 <= self.heading_diff < 180 :
+        if self.hard_turn_min <= self.heading_diff < 180 :
             return #hardturn
         elif -180 <= self.heading_diff <= -90:
             return #hardturn
@@ -71,7 +72,7 @@ class GPSTraversal:
             side_clear = 1
         while abs(self.heading_diff) >= buf:
             try:
-                side_clear = ccserviceProxy(90 if (180 >= self.heading_diff >= 90) else -90 if (-180 <= self.heading_diff <= -90) else self.heading_diff)
+                side_clear = ccserviceProxy(90 if (180 >= self.heading_diff >= self.hard_turn_min) else -90 if (-180 <= self.heading_diff <= -self.hard_turn_min) else self.heading_diff)
             except:
                 side_clear = 1
             if side_clear != 1 break
