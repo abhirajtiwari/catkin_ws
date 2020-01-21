@@ -4,7 +4,7 @@ import time
 import math
 import threading
 from sensor_msgs.msg import LaserScan
-from sensor_msgs.msg import String
+from std_msgs.msg import String
 import numpy as np
 from masks import cardiod
 

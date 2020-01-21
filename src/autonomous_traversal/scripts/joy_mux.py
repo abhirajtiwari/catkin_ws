@@ -29,11 +29,12 @@ class JoyMux:
         self.start()
 
     def rs_callback(self, data):
-
-        self.rs_data = list ( map ( int , data.data.split() ) )
+        self.rs_data = list(map(int, data.data.split()))
 
     def sick_callback(self, data):
-        self.gps_data = list( map ( int , data.data.split() ) )
+        self.gps_data = list(map(int, data.data.split()))
+
+    def ellipticalDisctoSquare(self, x, y):
 
     def start(self):
         
@@ -45,7 +46,6 @@ class JoyMux:
         rospy.logdebug()
 
 
-    def ellipticalDisctoSquare(self, x, y):
     
 
 if __name__ == '__main__':
