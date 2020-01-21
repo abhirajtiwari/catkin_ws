@@ -20,7 +20,7 @@ class JoyMux:
         self.rs_data = None
         self.sick_data = None
         self.gps_data = None
-
+        #self.prev_rs_data=None 
         self.rs_sub = rospy.Subscriber('', String, queue_size = 10)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, queue_size = 10)
         self.gps_ob = GPSTraversal()
@@ -35,20 +35,25 @@ class JoyMux:
         self.gps_data = list( map ( int , data.data.split() ) )
 
     def start(self):
+        while True:
         
-        #destroy turn values within 5degs
-        self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
-        self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
+        	if self.rs_data!=None or self.sick_data!=None
+        		#destroy turn values within 5degs
+		        self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
+		        self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
+		        #realsense algo primitive 
+		        if self.rs_data[2] != 0 :
+		        	
 
-        #just before serial write fill these
-        rospy.logdebug()
+	        #just before serial write fill these
+	        rospy.logdebug()
 
 
     def ellipticalDisctoSquare(self, x, y):
     
 
 if __name__ == '__main__':
-    rospy.init_node('joy_mux')
-    JoyMux()
+    rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
+    mux_obj=JoyMux()
     rospy.spin()
 
