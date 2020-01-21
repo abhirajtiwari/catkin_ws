@@ -19,7 +19,7 @@ class JoyMux:
         self.rs_data = None
         self.sick_data = None
         self.gps_data = None
-        #self.prev_rs_data=None 
+        #self.prev_rs_data=None
         self.rs_sub = rospy.Subscriber('', String, self.rs_callback)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
         self.gps_sub = rospy.Subscriber('gps_cmd', String, self.gps_callback)
@@ -34,7 +34,7 @@ class JoyMux:
         self.sick_data = list(map(int, data.data.split()))
 
     def gps_callback(self, data):
-        self.gps_data = 
+        self.gps_data =
 
     def send_cmd(self, u, v, gear):
 
@@ -70,10 +70,10 @@ class JoyMux:
 
             if self.rs_data!=None or self.sick_data!=None:
                 #destroy turn values within 5degs
-                #realsense algo primitive 
+                #realsense algo primitive
                 if self.rs_data[2] == 90 :
                     while self.rs_data[2] != 0:
-                        #send hard left turn 
+                        #send hard left turn
                 elif self.rs_data[2] == -90:
                     while self.rs_data!=0:
                         #send hard right turn
