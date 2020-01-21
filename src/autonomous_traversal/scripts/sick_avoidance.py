@@ -31,7 +31,7 @@ class SickAvoider:
         left = 0 if mid-8<0 else mid-8
         right = 1100 if mid+8>0 else mid+8
         if self.np_ranges is not None:
-            if np.mean(self.np_ranges[left:right]) < 4: #Teakable param here
+            if np.mean(self.np_ranges[left:right]) < 4:	 #Tweakable param here
                 return ClearServiceResponse(0)
             else return ClearServiceResponse(1)
         else return ClearServiceResponse(1)

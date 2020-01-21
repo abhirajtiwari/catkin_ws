@@ -3,7 +3,6 @@ import rospy
 import numpy as np
 import math
 import time
-
 import serial
 
 from std_msgs.msg import String
