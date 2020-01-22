@@ -24,18 +24,18 @@
 #include <sstream>
 #include<string>
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-boost::shared_ptr<pcl::visualization::PCLVisualizer>;
+// boost::shared_ptr<pcl::visualization::PCLVisualizer>;
 
 
-simpleVis(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
-{
-  boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer("3D Viewer"));
-  viewer->setBackgroundColor(0, 0, 0);
-  viewer->addPointCloud<pcl::PointXYZ> (cloud,"sample cloud1");
-  viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud1");
-  viewer->initCameraParameters ();
-  return (viewer);
-}
+// boost::shared_ptr<pcl::visualization::PCLVisualizer> simpleVis(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
+// {
+//   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer("3D Viewer"));
+//   viewer->setBackgroundColor(0, 0, 0);
+//   viewer->addPointCloud<pcl::PointXYZ> (cloud,"sample cloud1");
+//   viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud1");
+//   viewer->initCameraParameters ();
+//   return (viewer);
+// }
 std::string  prev_str="straight";
 void callback(const PointCloud::ConstPtr& msg)
 {
