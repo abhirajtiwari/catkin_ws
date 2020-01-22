@@ -58,6 +58,13 @@ class JoyMux:
 
     def start(self):
 
+        while self.gps_ob.heading_diff is None:
+            rospy.logdebug_once("Waiting for gps...")
+            continue
+
+        rospy.logdebug_once("Got GPS...")
+        self.gps_ob.align(5) #First alignment
+
         while True:
             #Destroy degree data less than 5degs
 
