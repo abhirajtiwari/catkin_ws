@@ -58,6 +58,9 @@ class SickAvoider:
             rospy.logdebug("Magnitude: %f, Direction: %f",self.magnitude, self.direction)
 
             #Add publisher after testing
+            send = String()
+            send.data = '0' + ' 1 ' + self.direction + ' 5'
+            self.pub.publish(send)
 
 
 if __name__ == '__main__':
