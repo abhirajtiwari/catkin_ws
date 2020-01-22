@@ -81,6 +81,10 @@ class JoyMux:
                     self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
                     continue
 
+            #GPS Data Correction
+            if  self.gps_ob.heading_diff is not None:
+            	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
+            		self.gps_ob.align(5)		
 
 if __name__ == '__main__':
     rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
