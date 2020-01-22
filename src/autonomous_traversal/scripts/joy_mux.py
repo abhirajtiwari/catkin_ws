@@ -18,7 +18,6 @@ class JoyMux:
         self.ser = serial.Serial('/dev/ttyUSB', 115200)
         self.rs_data = None
         self.sick_data = None
-        self.gps_data = None
         #self.prev_rs_data=None
         self.rs_sub = rospy.Subscriber('', String, self.rs_callback)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
@@ -32,9 +31,6 @@ class JoyMux:
 
     def sick_callback(self, data):
         self.sick_data = list(map(float, data.data.split()))
-
-    def gps_callback(self, data):
-        self.gps_data = list(map(float, data.data.split()))
 
     def send_cmd(self, u, v, gear):
 
@@ -85,12 +81,6 @@ class JoyMux:
                     self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
                     continue
 
-            if self.gps_data is not None:
-                self.gps_data[2] = 0 if (abs(self.gps_data[2]) <= 5) else self.gps_data[2]
-                if self.gps_data != 0:
-                    self.send_cmd(self.gps_data[1]*np.cos(self.gps_data[2]), self.gps_data[1]*np.sin(self.gps_data[2]), self.gps_data[3])
-                    continue
-                #start gps code
 
 if __name__ == '__main__':
     rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
