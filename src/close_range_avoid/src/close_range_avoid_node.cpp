@@ -24,8 +24,8 @@
 #include <sstream>
 #include<string>
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-boost::shared_ptr<pcl::visualization::PCLVisualizer>
-string prev_str="straight";
+boost::shared_ptr<pcl::visualization::PCLVisualizer>;
+
 
 simpleVis(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
 {
@@ -36,7 +36,7 @@ simpleVis(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
   viewer->initCameraParameters ();
   return (viewer);
 }
-
+std::string  prev_str="straight";
 void callback(const PointCloud::ConstPtr& msg)
 {
   ros::NodeHandle n;
@@ -132,7 +132,7 @@ void callback(const PointCloud::ConstPtr& msg)
     xcor.push_back(row2);
     //}
   }
-  string curr_str;
+  std::string  curr_str;
   std::cout<<endl<<j<<endl;
   std::stringstream ss;
   std_msgs::String kin_val;
@@ -147,7 +147,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             std::cout<<"left\n";
 	    ss << "left";
-      curr_str="left";
+      curr_str.assign("left");
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -155,7 +155,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             std::cout<<"right\n";
     	    ss << "right";
-          curr_str="right"
+          curr_str.assign("right");
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -165,16 +165,16 @@ void callback(const PointCloud::ConstPtr& msg)
 	std::cout<<"straight\n";
   //current
 	ss << "straight";
-  curr_str="straight";
+  curr_str.assign("straight");
   	kin_val.data = ss.str();
   label:
   // if the curr!=straight
-  if (strcmp(curr_str,"straight"))
-  { 
-    if (strcmp("straight",prev_str))
+  if (curr_str.compare("straight"))
+  {   
+    if (!prev_str.compare("straight"))
     {
       kin_val.data=curr_str;
-      prev_str=curr_str;
+      prev_str.assign(curr_str);
     }
     else{
       kin_val.data=prev_str;
@@ -184,7 +184,7 @@ void callback(const PointCloud::ConstPtr& msg)
   else
   {
     kin_val.data=curr_str;
-    prev_str=curr_str;
+    prev_str.assign(curr_str);
   }
 	pub.publish(kin_val);
   /*viewer = simpleVis(cloud_cluster);  
