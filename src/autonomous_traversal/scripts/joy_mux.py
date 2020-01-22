@@ -6,7 +6,7 @@ import time
 import serial
 
 from std_msgs.msg import String
-from gps_traversal.py import GPSTraversal
+from gps_traversal import GPSTraversal
 
 class JoyMux:
     '''

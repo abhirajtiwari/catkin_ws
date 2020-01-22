@@ -14,6 +14,7 @@ class GPSTraversal:
         self.bearing = None
         self.dist = None
         self.endcoods = None
+        self.priority = 0
         self.hard_turn_min = 90
         self.turn_gear = 10
         self.imu_sub = rospy.Subscriber("imu_data/raw", Imu, self.imu_callback)
@@ -59,10 +60,10 @@ class GPSTraversal:
     def match_head_cmds(self):
         self.set_gear()
         if self.hard_turn_min <= self.heading_diff < 180 :
-            return #hardturn
+            return "".join(str(self.priority), "1", str(90), str(self.turn_gear))
         elif -180 <= self.heading_diff <= -90:
-            return #hardturn
-        else return #math.cos(self.heading_diff), math.sin(self.heading_diff)
+            return "".join(str(self.priority), "1", str(-90), str(self.turn_gear))
+        else return "".join(str(self.priority), "1", str(self.heading_diff), str(self.turn_gear))
 
     def align(self,buf):
         rospy.logdebug("Aligning rover %f",self.heading_diff)
