@@ -59,9 +59,9 @@ class GPSTraversal:
     def match_head_cmds(self):
         self.set_gear(self.heading_diff)
         if self.heading_diff < 180 :
-            return #string
+            return '0' + ' 1' + ' -90 ' + self.turn_gear
         elif self.heading_diff >= 180:
-            return #string
+            return '0' + ' 1' + ' 90 ' + self.turn_gear
 
     def align(self,buf):
         rospy.logdebug("Aligning rover %f",self.heading_diff)
