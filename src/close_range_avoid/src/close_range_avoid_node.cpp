@@ -145,33 +145,33 @@ void callback(const PointCloud::ConstPtr& msg)
           //std::cout<<moi[i][1]<<" dist = "<<xcor[i][2]<<endl;
           if(moi[i][0]>=0)
 	  {
-            std::cout<<"left\n";
+            //std::cout<<"left\n";
 	    ss << "left";
-      curr_str.assign("left");
+      curr_str.assign("0 1 90");
             kin_val.data = ss.str();
 	    goto label;
 	  }
           else //if(fabs(xcor[i][0])>fabs(xcor[i][1]))
 	  {
-            std::cout<<"right\n";
+            //std::cout<<"right\n";
     	    ss << "right";
-          curr_str.assign("right");
+          curr_str.assign("0 1 -90");
             kin_val.data = ss.str();
 	    goto label;
 	  }
         }
 	//else
        }
-	std::cout<<"straight\n";
+	//std::cout<<"straight\n";
   //current
 	ss << "straight";
-  curr_str.assign("straight");
+  curr_str.assign("0 1 0");
   	kin_val.data = ss.str();
   label:
   // if the curr!=straight
-  if (curr_str.compare("straight"))
+  if (curr_str.compare("0 1 0"))
   {   
-    if (!prev_str.compare("straight"))
+    if (!prev_str.compare("0 1 0"))
     {
       kin_val.data=curr_str;
       prev_str.assign(curr_str);
@@ -186,6 +186,7 @@ void callback(const PointCloud::ConstPtr& msg)
     kin_val.data=curr_str;
     prev_str.assign(curr_str);
   }
+  cout<<kin_val.data;
 	pub.publish(kin_val);
   /*viewer = simpleVis(cloud_cluster);  
   //viewer = simpleVis(cloud_vox);  
