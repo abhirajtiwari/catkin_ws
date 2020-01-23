@@ -3,7 +3,6 @@ import rospy
 import numpy as np
 import math
 import time
-import serial
 
 from std_msgs.msg import String
 from gps_traversal import GPSTraversal
@@ -15,13 +14,12 @@ class JoyMux:
     priority be just an extensible feature to be added later could be used for overriding
     '''
     def __init__(self):
-        self.ser = serial.Serial('/dev/ttyUSB', 115200)
         self.rs_data = None
         self.sick_data = None
+        self.gps_data = None
         #self.prev_rs_data=None
-        self.rs_sub = rospy.Subscriber('', String, self.rs_callback)
+        self.rs_sub = rospy.Subscriber('kinect_data', String, self.rs_callback)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
-        self.gps_sub = rospy.Subscriber('gps_cmd', String, self.gps_callback)
         self.gps_ob = GPSTraversal()
 
         self.start()
@@ -54,7 +52,7 @@ class JoyMux:
         x = map1(x, -1, 1, -8000, 8000) + 8000
         y = 8000 + map1(y, -1, 1, -8000, 8000)
         rospy.logdebug("Joystick x-"+str(x)+ "y-"+str(y))
-        self.ser.write('m' + gear + 's' + str(x).zfill(5) + 'f' + str(y).zfill(5) + 'n') #write serial data
+        # Publish this data to a decoder
 
     def start(self):
 
@@ -91,7 +89,8 @@ class JoyMux:
             #GPS Data Correction
             if  self.gps_ob.heading_diff is not None:
             	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
-            		self.gps_ob.align(5)		
+                    self.gps_ob.align(5)
+
 
 if __name__ == '__main__':
     rospy.init_node('joy_mux',anonymous=True,disable_signals=True)

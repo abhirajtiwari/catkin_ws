@@ -6,7 +6,7 @@ import threading
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 import numpy as np
-from masks import cardiod
+
 
 from autonomous_traversal.srv import ClearService, ClearServiceResponse
 
@@ -33,8 +33,8 @@ class SickAvoider:
         if self.np_ranges is not None:
             if np.mean(self.np_ranges[left:right]) < 4:	 #Tweakable param here
                 return ClearServiceResponse(0)
-            else return ClearServiceResponse(1)
-        else return ClearServiceResponse(1)
+            else: return ClearServiceResponse(1)
+        else: return ClearServiceResponse(1)
 
     def cardiod(self, a, thetas):
         return a*(1+np.cos(thetas))
@@ -59,12 +59,12 @@ class SickAvoider:
 
             #Add publisher after testing
             send = String()
-            send.data = '0' + ' 1 ' + self.direction + ' 5'
+            send.data = '0' + ' 1 ' + str(self.direction) + ' 5'
             self.pub.publish(send)
 
 
 if __name__ == '__main__':
-    rospy.init_node("sick_avoidance")
+    rospy.init_node("sick_avoidance", log_level=rospy.DEBUG)
     SickAvoider()
     rospy.spin()
             
