@@ -147,7 +147,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             std::cout<<"left\n";
 	    ss << "left";
-      curr_str.assign("left");
+      curr_str.assign("0 1 90");
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -155,7 +155,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             std::cout<<"right\n";
     	    ss << "right";
-          curr_str.assign("right");
+          curr_str.assign("0 1 -90");
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -165,7 +165,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	std::cout<<"straight\n";
   //current
 	ss << "straight";
-  curr_str.assign("straight");
+  curr_str.assign("0 1 0");
   	kin_val.data = ss.str();
   label:
   // if the curr!=straight
