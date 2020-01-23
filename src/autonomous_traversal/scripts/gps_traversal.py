@@ -79,6 +79,7 @@ class GPSTraversal:
                 rospy.logdebug("Aligning rover %f",self.heading_diff)
                 try:
                     side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90)
+                    rospy.logdebug("side_clear: %d", side_clear)
                 except:
                     side_clear = 1
                 if side_clear != 1 : 

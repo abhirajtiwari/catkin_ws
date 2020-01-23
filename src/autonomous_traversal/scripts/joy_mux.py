@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import rospy
 import numpy as np
 import math
@@ -82,8 +82,8 @@ class JoyMux:
             #             #send hard right turn
 
             if self.sick_data is not None: #Sick data
-                self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
-                if self.sick_data != 0:
+                self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 9) else self.sick_data[2]
+                if self.sick_data[2] != 0:
                     rospy.logdebug("Listening to sick")
                     self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
                     continue
@@ -91,7 +91,12 @@ class JoyMux:
             #GPS Data Correction
             if  self.gps_ob.heading_diff is not None:
             	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
+                    rospy.logdebug("GPS")
                     self.gps_ob.align(5)
+                    continue
+
+            # self.send_cmd( STRAIGHT BASICALLY )
+            rospy.logdebug("Straight")
 
 
 if __name__ == '__main__':
