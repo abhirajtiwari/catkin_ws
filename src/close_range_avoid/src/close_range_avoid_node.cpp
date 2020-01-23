@@ -37,10 +37,9 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 //   return (viewer);
 // }
 std::string  prev_str="0 1 0 5";
+ros::Publisher pub;
 void callback(const PointCloud::ConstPtr& msg)
 {
-  ros::NodeHandle n;
-  ros::Publisher pub = n.advertise<std_msgs::String>("/kinect_data",100);
   //ROS_INFO("I heard: [%d] [%d]",msg->width, msg->height);
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_pass (new pcl::PointCloud<pcl::PointXYZ>());
@@ -200,7 +199,9 @@ void callback(const PointCloud::ConstPtr& msg)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "intel");
-  ros::NodeHandle n;
+  ros::NodeHandle n; 
+  pub = n.advertise<std_msgs::String>("/kinect_data",100);
+
   ros::Subscriber sub = n.subscribe("/rs_pcl", 1, callback);
   ros::spin();
   return 0;
