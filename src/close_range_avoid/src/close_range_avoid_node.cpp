@@ -36,12 +36,12 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 //   viewer->initCameraParameters ();
 //   return (viewer);
 // }
-std::string  prev_str="straight";
+std::string  prev_str="0 1 0 5";
 void callback(const PointCloud::ConstPtr& msg)
 {
   ros::NodeHandle n;
   ros::Publisher pub = n.advertise<std_msgs::String>("/kinect_data",100);
-  ROS_INFO("I heard: [%d] [%d]",msg->width, msg->height);
+  //ROS_INFO("I heard: [%d] [%d]",msg->width, msg->height);
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_pass (new pcl::PointCloud<pcl::PointXYZ>());
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_pass1 (new pcl::PointCloud<pcl::PointXYZ>()); 
@@ -53,21 +53,21 @@ void callback(const PointCloud::ConstPtr& msg)
   pass.setFilterLimits (0.0, 8.0);
   pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_pass);
-  ROS_INFO("I heard: [%d] [%d]",cloud_pass->width, cloud_pass->height);
+  //ROS_INFO("I heard: [%d] [%d]",cloud_pass->width, cloud_pass->height);
   //pass1.setInputCloud (cloud_pass);
   //pass1.setFilterFieldName ("y");
   //pass1.setFilterLimits (100.0, 200.0);
   //pass1.setFilterLimitsNegative (true);
   //pass1.filter (*cloud_pass1);
-  ROS_INFO("I heard: [%d] [%d]",cloud_pass1->width, cloud_pass1->height);
-  std::cout<<"pass done\n";
+  //ROS_INFO("I heard: [%d] [%d]",cloud_pass1->width, cloud_pass1->height);
+  //std::cout<<"pass done\n";
 
   pcl::VoxelGrid<pcl::PointXYZ> vox;
   vox.setInputCloud (cloud_pass);
   vox.setLeafSize (0.04f, 0.04f, 0.04f);
   vox.filter (*cloud_vox);
-  std::cout<<"vox done\n";
-  ROS_INFO("I heard: [%d] [%d]",cloud_vox->width, cloud_vox->height);
+  //std::cout<<"vox done\n";
+  //ROS_INFO("I heard: [%d] [%d]",cloud_vox->width, cloud_vox->height);
   pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
   tree->setInputCloud (cloud_vox);
   std::vector<pcl::PointIndices> cluster_indices;
@@ -147,7 +147,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             //std::cout<<"left\n";
 	    ss << "left";
-      curr_str.assign("0 1 90");
+      curr_str.assign("0 1 90 7");
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -155,7 +155,7 @@ void callback(const PointCloud::ConstPtr& msg)
 	  {
             //std::cout<<"right\n";
     	    ss << "right";
-          curr_str.assign("0 1 -90");
+          curr_str.assign("0 1 -90 7");
             kin_val.data = ss.str();
 	    goto label;
 	  }
@@ -165,13 +165,13 @@ void callback(const PointCloud::ConstPtr& msg)
 	//std::cout<<"straight\n";
   //current
 	ss << "straight";
-  curr_str.assign("0 1 0");
+  curr_str.assign("0 1 0 5");
   	kin_val.data = ss.str();
   label:
   // if the curr!=straight
-  if (curr_str.compare("0 1 0"))
+  if (curr_str.compare("0 1 0 5"))
   {   
-    if (!prev_str.compare("0 1 0"))
+    if (!prev_str.compare("0 1 0 5"))
     {
       kin_val.data=curr_str;
       prev_str.assign(curr_str);

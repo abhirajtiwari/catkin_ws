@@ -36,6 +36,8 @@ class GPSTraversal:
         self.imu_val = 360 - yaw
         if self.bearing != None:
             self.heading_diff = self.imu_val - self.bearing
+            if self.heading_diff < -180:
+                self.heading_diff += 360 
 
 
     def fix_callback(self, data):
@@ -63,7 +65,7 @@ class GPSTraversal:
     def match_head_cmds(self):
         self.set_gear()
         if self.hard_turn_min <= self.heading_diff < 180 :
-            return str(self.priority)+ "1"+ " 90"+ str(self.turn_gear)
+            return str(self.priority)+ " 1"+ " 90 "+ str(self.turn_gear)
         elif -180 <= self.heading_diff <= -90:
             return str(self.priority)+ " 1 " + "-90 " + str(self.turn_gear)
         else: return str(self.priority)+ " 1 "+ str(int(self.heading_diff))+ " "+ str(7)

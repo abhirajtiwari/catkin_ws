@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import rospy
 import numpy as np
 import math
@@ -51,7 +51,7 @@ class JoyMux:
         y = 0.5 * (termy)**(0.5) - 0.5 * (termy2)**(0.5)
         x = map1(x, -1, 1, -8000, 8000) + 8000
         y = 8000 + map1(y, -1, 1, -8000, 8000)
-        rospy.logdebug("Joystick x-"+str(x)+ "y-"+str(y))
+        rospy.logdebug("Joystick x: "+str(x)+ " y: "+str(y)+ " Heading: " + str(self.gps_ob.heading_diff))
         # Publish this data to a decoder
 
     def start(self):
@@ -60,7 +60,7 @@ class JoyMux:
             rospy.logdebug_once("Waiting for gps...")
             continue
 
-        rospy.logdebug_once("Got GPS...")
+        rospy.logdebug("Got GPS...")
         self.gps_ob.align(5) #First alignment
 
         while True:
@@ -69,6 +69,7 @@ class JoyMux:
             if self.rs_data is not None: #rs_data
                 self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
                 if self.rs_data[2] != 0: 
+                    rospy.logdebug("Listening to rs")
                     self.send_cmd(self.rs_data[1]*np.cos(self.rs_data[2]), self.rs_data[1]*np.sin(self.rs_data[2]), self.rs_data[3])
                     continue
 
@@ -83,6 +84,7 @@ class JoyMux:
             if self.sick_data is not None: #Sick data
                 self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 5) else self.sick_data[2]
                 if self.sick_data != 0:
+                    rospy.logdebug("Listening to sick")
                     self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
                     continue
 
@@ -93,7 +95,7 @@ class JoyMux:
 
 
 if __name__ == '__main__':
-    rospy.init_node('joy_mux',anonymous=True,disable_signals=True)
+    rospy.init_node('joy_mux',log_level=rospy.DEBUG,anonymous=True,disable_signals=True)
     mux_obj=JoyMux()
     rospy.spin()
 
