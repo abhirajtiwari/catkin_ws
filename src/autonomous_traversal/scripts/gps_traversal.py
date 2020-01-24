@@ -8,6 +8,7 @@ from autonomous_traversal.srv import *
 from std_msgs.msg import String
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import NavSatFix
+import sys
 
 
 class GPSTraversal:
@@ -73,14 +74,16 @@ class GPSTraversal:
             rospy.logdebug("Heading: %f",self.heading_diff)
             try:
                 ccserviceProxy = rospy.ServiceProxy('check_clear', ClearService)
-            except:
+            except Exception as e:
+                print (str(e))
                 side_clear = 1
             while abs(self.heading_diff) >= buf:
                 rospy.logdebug("Aligning rover %f",self.heading_diff)
                 try:
-                    side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90)
+                    side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90).response
                     rospy.logdebug("side_clear: %d", side_clear)
-                except:
+                except Exception as e:
+                    print (e)
                     side_clear = 1
                 if side_clear != 1 : 
                     break
