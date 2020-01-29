@@ -22,6 +22,8 @@ class GPSTraversal:
         self.turn_gear = 10
         self.imu_sub = rospy.Subscriber("imu_data/raw", Imu, self.imu_callback)
         self.gps_sub = rospy.Subscriber("fix", NavSatFix, self.fix_callback)
+        self.pub = rospy.Publisher("soft_gps_cmd", String, queue_size = 10)
+
 
     def imu_callback(self, msg):
         orientation_list = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
@@ -37,7 +39,7 @@ class GPSTraversal:
         if self.bearing != None:
             self.heading_diff = self.imu_val - self.bearing
             if self.heading_diff < -180:
-                self.heading_diff += 360 
+                self.heading_diff += 360 #COnverting Difference to 180 to 180
 
 
     def fix_callback(self, data):
@@ -65,10 +67,14 @@ class GPSTraversal:
     def match_head_cmds(self):
         self.set_gear()
         if self.hard_turn_min <= self.heading_diff < 180 :
+            self.priority = 1
             return str(self.priority)+ " 1"+ " 90 "+ str(self.turn_gear)
-        elif -180 <= self.heading_diff <= -90:
+        elif -180 <= self.heading_diff <= -self.hard_turn_min:
+            self.priority = 1
             return str(self.priority)+ " 1 " + "-90 " + str(self.turn_gear)
-        else: return str(self.priority)+ " 1 "+ str(int(self.heading_diff))+ " "+ str(7)
+        else: 
+            self.priority = 0
+            return str(self.priority)+ " 1 "+ str(int(self.heading_diff))+ " "+ str(7)
 
     def align(self,buf):
         if self.heading_diff is not None:
@@ -79,23 +85,26 @@ class GPSTraversal:
             side_clear = 1
         # while abs(self.heading_diff) >= buf:
         while self.heading_diff is None:
+            rospy.logdebug("No GPS!")
             continue
         try:
-            side_clear = ccserviceProxy(90 if (180 >= self.heading_diff >= self.hard_turn_min) else -90 if (-180 <= self.heading_diff <= -self.hard_turn_min) else self.heading_diff)
+            side_clear = ccserviceProxy(90 if (180 >= self.heading_diff >= self.hard_turn_min) else -90 if (-180 <= self.heading_diff <= -self.hard_turn_min) else self.heading_diff).response
+            
         except:
             side_clear = 1
-        
+        rospy.logdebug("side_clear: %d%tHeading diff: %d", side_clear, self.heading_diff)
         if side_clear == 1:
-            rospy.logdebug(self.match_head_cmds())
+            pub_str=self.match_head_cmds()
+            rospy.logdebug("Motor Commands: %d",pub_str)
+            self.pub.publish(pub_str)
 
 if __name__ == '__main__':
-    pub = rospy.Publisher("soft_gps_cmd", String, queue_size = 10)
     rospy.init_node("sof_gps_traversal", log_level=rospy.DEBUG, disable_signals=True)
     ob = GPSTraversal()
 
     while True:
         try:
-            pub.publish(ob.align(2.5))
+            ob.align(2.5)
         except KeyboardInterrupt:
             break
 
