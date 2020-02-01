@@ -17,11 +17,12 @@ class JoyMux:
         self.rs_data = None
         self.sick_data = None
         self.gps_data = None
+        self.gear=7
         #self.prev_rs_data=None
         self.rs_sub = rospy.Subscriber('kinect_data', String, self.rs_callback)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
         self.gps_ob = GPSTraversal()
-
+        self.pub=rospy.Publisher("auto_trav_cmd",String)
         self.start()
 
     def rs_callback(self, data):
@@ -52,7 +53,8 @@ class JoyMux:
         x = map1(x, -1, 1, -8000, 8000) + 8000
         y = 8000 + map1(y, -1, 1, -8000, 8000)
         rospy.logdebug("Joystick x: "+str(x)+ " y: "+str(y)+ " Heading: " + str(self.gps_ob.heading_diff))
-        # Publish this data to a decoder
+        # Publish this data to a decoder    
+        pub.Publish(str(x)+" "+str(y)+" "+str(self.gear))
 
     def start(self):
 
