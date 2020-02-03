@@ -31,7 +31,9 @@ class SickAvoider:
         left = 0 if mid-8<0 else mid-8
         right = 1100 if mid+8>0 else mid+8
         if self.np_ranges is not None:
-            if np.mean(self.np_ranges[left:right]) < 4:	 #Tweakable param here
+            if mid<0 or mid>1100:
+                return ClearServiceResponse(1)
+            if np.mean(self.np_ranges[left:right]) < 2:	 #Tweakable param here
                 return ClearServiceResponse(0)
             else: return ClearServiceResponse(1)
         else: return ClearServiceResponse(1)
@@ -59,7 +61,7 @@ class SickAvoider:
 
             #Add publisher after testing
             send = String()
-            send.data = '0' + ' 1 ' + str(self.direction) + ' 5'
+            send.data = '0' + ' ' + str(self.x) + ' ' + str(self.y) + ' 5'
             self.pub.publish(send)
 
 

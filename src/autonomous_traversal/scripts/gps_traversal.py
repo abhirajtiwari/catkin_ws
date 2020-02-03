@@ -1,5 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import rospy
+import time
 import numpy as np
 import math
 import pyproj
@@ -18,11 +19,16 @@ class GPSTraversal:
         self.heading_diff = None
         self.bearing = None
         self.dist = None
-        self.endcoods = [0,0]
-        self.turn_gear = 10
+        #self.endcoods = [13.3481131,74.7926283]
+        #self.endcoods = [13.3475449, 74.7920938] #home
+        self.endcoods = [13.348080, 74.792655] #parking lot N
+        #self.endcoods = [13.3476127, 74.7928378] #kc gate 2 deeper
+        #self.endcoods = [13.347486, 74.792730] #kc gate
+        #self.endcoods = [13.3478433, 74,7921981]
+        self.turn_gear = 6
         self.imu_sub = rospy.Subscriber("/imu_data/raw", Imu, self.imu_callback)
         self.gps_sub = rospy.Subscriber("/fix", NavSatFix, self.fix_callback)
-        self.pub = rospy.Publisher("gps_cmd", String, queue_size = 10)
+        self.pub = rospy.Publisher("auto_trav_cmd", String, queue_size = 10)
 
     def imu_callback(self, msg):
         orientation_list = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
@@ -65,9 +71,9 @@ class GPSTraversal:
     def match_head_cmds(self):
         self.set_gear(self.heading_diff)
         if self.heading_diff < 180 :
-            return '0' + ' 1' + ' 90 ' + str(self.turn_gear)
+            return '0 ' + '8000 ' + str(self.turn_gear)
         elif self.heading_diff >= 180:
-            return '0' + ' 1' + ' -90 ' + str(self.turn_gear)
+            return '16000 ' + '8000 ' + str(self.turn_gear)
 
     def align(self,buf):
         if self.heading_diff is not None:
@@ -78,15 +84,17 @@ class GPSTraversal:
                 print (str(e))
                 side_clear = 1
             while abs(self.heading_diff) >= buf:
+                time.sleep(0.03)
                 rospy.logdebug("Aligning rover %f",self.heading_diff)
                 try:
                     side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90).response
                     rospy.logdebug("side_clear: %d", side_clear)
                 except Exception as e:
-                    print (e)
+                    rospy.logdebug("service exception")
                     side_clear = 1
                 if side_clear != 1 : 
                     break
+                rospy.logdebug("Publishing")
                 self.pub.publish ( self.match_head_cmds() )
 
 if __name__ == '__main__':

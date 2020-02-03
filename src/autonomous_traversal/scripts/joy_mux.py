@@ -17,11 +17,12 @@ class JoyMux:
         self.rs_data = None
         self.sick_data = None
         self.gps_data = None
+        self.gear=5
         #self.prev_rs_data=None
         self.rs_sub = rospy.Subscriber('kinect_data', String, self.rs_callback)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
         self.gps_ob = GPSTraversal()
-
+        self.pub=rospy.Publisher("auto_trav_cmd", String, queue_size=10)
         self.start()
 
     def rs_callback(self, data):
@@ -30,8 +31,10 @@ class JoyMux:
     def sick_callback(self, data):
         self.sick_data = list(map(float, data.data.split()))
 
-    def send_cmd(self, u, v, gear):
-
+    def send_cmd(self,u, v, gear):
+                
+        rospy.logdebug("u and v %f, %f",u,v)
+        #v=-v #shitty way to solve
         def map1(x,in_min,in_max,out_min,out_max):
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
@@ -52,7 +55,8 @@ class JoyMux:
         x = map1(x, -1, 1, -8000, 8000) + 8000
         y = 8000 + map1(y, -1, 1, -8000, 8000)
         rospy.logdebug("Joystick x: "+str(x)+ " y: "+str(y)+ " Heading: " + str(self.gps_ob.heading_diff))
-        # Publish this data to a decoder
+        # Publish this data to a decoder    
+        self.pub.publish(str(int(x))+" "+str(int(y))+" "+str(self.gear))
 
     def start(self):
 
@@ -61,16 +65,21 @@ class JoyMux:
             continue
 
         rospy.logdebug("Got GPS...")
+        time.sleep(1)
         self.gps_ob.align(5) #First alignment
 
         while True:
+            if self.gps_ob.dist <= 3:
+                self.send_cmd(0, 0, 2)
+                break
             #Destroy degree data less than 5degs
-
+            if self.gps_ob.heading_diff is not None:
+                rospy.logdebug("Heading diff %f ",self.gps_ob.heading_diff)
             if self.rs_data is not None: #rs_data
                 self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
                 if self.rs_data[2] != 0: 
                     rospy.logdebug("Listening to rs")
-                    self.send_cmd(self.rs_data[1]*np.cos(self.rs_data[2]), self.rs_data[1]*np.sin(self.rs_data[2]), self.rs_data[3])
+                    self.send_cmd(-1*self.rs_data[1]*np.sin(np.radians(self.rs_data[2])), self.rs_data[1]*np.cos(np.radians(self.rs_data[2])), self.rs_data[3])
                     continue
 
             # if self.rs_data is not None: #Realsense
@@ -80,20 +89,22 @@ class JoyMux:
             #     elif self.rs_data[2] == -90:
             #         while self.rs_data!=0:
             #             #send hard right turn
-
+            if  self.gps_ob.heading_diff is not None:
+            	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
+                    rospy.logdebug("GPS ")
+                    self.gps_ob.align(5)
+                    continue
+ 
             if self.sick_data is not None: #Sick data
                 self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 9) else self.sick_data[2]
                 if self.sick_data[2] != 0:
                     rospy.logdebug("Listening to sick")
-                    self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
+                    #self.send_cmd(-1*self.sick_data[1]*np.sin(np.radians(self.sick_data[2])), self.sick_data[1]*np.cos(np.radians(self.sick_data[2])), self.sick_data[3])
+                    self.send_cmd(-1*self.sick_data[2],self.sick_data[1],self.sick_data[3])
                     continue
 
             #GPS Data Correction
-            if  self.gps_ob.heading_diff is not None:
-            	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
-                    rospy.logdebug("GPS")
-                    self.gps_ob.align(5)
-                    continue
+            self.send_cmd(8000, 16000, self.gear)
 
             # self.send_cmd( STRAIGHT BASICALLY )
             rospy.logdebug("Straight")

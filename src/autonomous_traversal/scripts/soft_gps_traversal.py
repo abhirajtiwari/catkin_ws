@@ -16,10 +16,15 @@ class GPSTraversal:
         self.heading_diff = None
         self.bearing = None
         self.dist = None
-        self.endcoods = [0,0]
+        #self.endcoods = [13.347488, 74.7917190]
+        #self.endcoods = [13.3475449, 74.7920938] #home
+        #self.endcoods = [13.348080, 74.792655] #parking lot N
+        #self.endcoods = [13.3476127, 74.7928378] #kc gate 2 deeper
+        self.endcoods = [13.347486, 74.792730] #kc gate
+        #self.endcoods = [13.3478433, 74,7921981]
         self.priority = 0
         self.hard_turn_min = 90
-        self.turn_gear = 10
+        self.turn_gear = 8
         self.imu_sub = rospy.Subscriber("imu_data/raw", Imu, self.imu_callback)
         self.gps_sub = rospy.Subscriber("fix", NavSatFix, self.fix_callback)
         self.pub = rospy.Publisher("soft_gps_cmd", String, queue_size = 10)
@@ -92,10 +97,10 @@ class GPSTraversal:
             
         except:
             side_clear = 1
-        rospy.logdebug("side_clear: %d%tHeading diff: %d", side_clear, self.heading_diff)
+        rospy.logdebug("side_clear: %d \tHeading diff: %d", side_clear, self.heading_diff)
         if side_clear == 1:
             pub_str=self.match_head_cmds()
-            rospy.logdebug("Motor Commands: %d",pub_str)
+            rospy.logdebug("Motor Commands: %s",pub_str)
             self.pub.publish(pub_str)
 
 if __name__ == '__main__':

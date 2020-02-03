@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import rospy
 import numpy as np
 import math
@@ -21,7 +21,8 @@ class JoyMux:
         self.rs_sub = rospy.Subscriber('kinect_data', String, self.rs_callback)
         self.sick_sub = rospy.Subscriber('sick_cmd', String, self.sick_callback)
         self.gps_sub = rospy.Subscriber('soft_gps_cmd', String, self.soft_gps_callback)
-
+        self.pub=rospy.Publisher("auto_trav_cmd", String, queue_size=10)
+        self.gear=5
         self.start()
 
     def rs_callback(self, data):
@@ -54,37 +55,33 @@ class JoyMux:
         y = 0.5 * (termy)**(0.5) - 0.5 * (termy2)**(0.5)
         x = map1(x, -1, 1, -8000, 8000) + 8000
         y = 8000 + map1(y, -1, 1, -8000, 8000)
-        rospy.logdebug("Joystick x: "+str(x)+ " y: "+str(y)+ " Heading: " + str(self.gps_data[2]))
+        rospy.logdebug("Joystick x: "+str(x)+ " y: "+str(y))
+        self.pub.publish(str(int(x))+" "+str(int(y))+" "+str(self.gear))
         # Publish this data to a decoder
 
     def start(self):
         
         while True:
             #Destroy degree data less than 5degs
-            if self.gps_data[0] == 1:
-                rospy.logdebug("GPS high priority")
-                self.send_cmd(self.gps_data[1]*np.cos(self.gps_data[2]), self.gps_data[1]*np.sin(self.gps_data[2]), self.gps_data[3])
+            if self.gps_data is not None:
+                if self.gps_data[0] == 1:
+                    rospy.logdebug("GPS high priority %f %f",self.gps_data[2], self.gps_data[1])
+                    self.send_cmd(-self.gps_data[1]*np.sin(np.radians(self.gps_data[2])), self.gps_data[1]*np.cos(np.radians(self.gps_data[2])), self.gps_data[3])
+                    continue
 
             if self.rs_data is not None: #rs_data
                 self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
                 if self.rs_data[2] != 0: 
                     rospy.logdebug("Listening to rs")
-                    self.send_cmd(self.rs_data[1]*np.cos(self.rs_data[2]), self.rs_data[1]*np.sin(self.rs_data[2]), self.rs_data[3])
+                    self.send_cmd(-1*self.rs_data[1]*np.sin(np.radians(self.rs_data[2])), self.rs_data[1]*np.cos(np.radians(self.rs_data[2])), self.rs_data[3])
                     continue
-
-            # if self.rs_data is not None: #Realsense
-            #     if self.rs_data[2] == 90 :
-            #         while self.rs_data[2] != 0:
-            #             #send hard left turn
-            #     elif self.rs_data[2] == -90:
-            #         while self.rs_data!=0:
-            #             #send hard right turn
 
             if self.sick_data is not None: #Sick data
                 self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 9) else self.sick_data[2]
                 if self.sick_data[2] != 0:
-                    rospy.logdebug("Listening to sick")
-                    self.send_cmd(self.sick_data[1]*np.cos(self.sick_data[2]), self.sick_data[1]*np.sin(self.sick_data[2]), self.sick_data[3])
+                    rospy.logdebug("Listening to sick %f %f", -self.sick_data[2],self.sick_data[1])
+                    #self.send_cmd(-1*self.sick_data[1]*np.sin(np.radians(self.sick_data[2])), self.sick_data[1]*np.cos(np.radians(self.sick_data[2])), self.sick_data[3])
+                    self.send_cmd(-1*self.sick_data[2],self.sick_data[1],self.sick_data[3])
                     continue
 
             #GPS Data Correction
@@ -92,8 +89,9 @@ class JoyMux:
                 #self.gps_data[2] = 0 if (abs(self.gps_data[2]) <= 10) else self.gps_data[2]
                 if self.gps_data[2] != 0:
                     rospy.logdebug("Listening to GPS")
-                    self.send_cmd(self.gps_data[1]*np.cos(self.gps_data[2]), self.gps_data[1]*np.sin(self.gps_data[2]), self.gps_data[3])
+                    self.send_cmd(-self.gps_data[1]*np.sin(np.radians(self.gps_data[2])), self.gps_data[1]*np.cos(np.radians(self.gps_data[2])), self.gps_data[3])
                     continue
+            self.send_cmd(8000, 16000, self.gear)
 
             # self.send_cmd( STRAIGHT BASICALLY )
             rospy.logdebug("Straight")
