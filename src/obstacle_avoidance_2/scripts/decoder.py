@@ -17,7 +17,7 @@ def get_values(msg):
     #print(type(gear))
 def joystick_decoder():
     
-    rospy.Subscriber("joystick_encoder", String, get_values)
+    rospy.Subscriber("auto_trav_cmd", String, get_values)
     global gear,x_joy,y_joy
     while(True):
 
