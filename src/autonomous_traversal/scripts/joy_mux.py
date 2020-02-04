@@ -74,7 +74,7 @@ class JoyMux:
                 break
             #Destroy degree data less than 5degs
             if self.gps_ob.heading_diff is not None:
-                rospy.logdebug("Heading diff %f ",self.gps_ob.heading_diff)
+                rospy.logdebug("Distance %f, Heading diff %f ",self.gps_ob.dist, self.gps_ob.heading_diff)
             if self.rs_data is not None: #rs_data
                 self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
                 if self.rs_data[2] != 0: 
