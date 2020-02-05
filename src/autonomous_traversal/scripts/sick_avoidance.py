@@ -28,12 +28,13 @@ class SickAvoider:
     def clear_service_callback(self,req):
         req.angle = 180 - req.angle
         mid = int(req.angle * 1101/275)
-        left = 0 if mid-8<0 else mid-8
-        right = 1100 if mid+8>0 else mid+8
+        buf = 10
+        left = 0 if mid-buf<0 else mid-buf
+        right = 1100 if mid+buf>0 else mid+buf
         if self.np_ranges is not None:
             if mid<0 or mid>1100:
                 return ClearServiceResponse(1)
-            if np.mean(self.np_ranges[left:right]) < 2:	 #Tweakable param here
+            if np.mean(self.np_ranges[left:right]) < 4:	 #Tweakable param here
                 return ClearServiceResponse(0)
             else: return ClearServiceResponse(1)
         else: return ClearServiceResponse(1)

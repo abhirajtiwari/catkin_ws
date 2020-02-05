@@ -70,11 +70,12 @@ class JoyMux:
 
         while True:
             if self.gps_ob.dist <= 3:
-                self.send_cmd(0, 0, 2)
+                rospy.loginfo("REACHED!!")
+                self.pub.publish(str(int(8000))+" "+str(int(8000))+" "+str(self.gear))
                 break
             #Destroy degree data less than 5degs
             if self.gps_ob.heading_diff is not None:
-                rospy.logdebug("Distance %f, Heading diff %f ",self.gps_ob.dist, self.gps_ob.heading_diff)
+                rospy.logdebug("Distance: %f Heading diff %f ",self.gps_ob.dist, self.gps_ob.heading_diff)
             if self.rs_data is not None: #rs_data
                 self.rs_data[2] = 0 if (abs(self.rs_data[2]) <= 5) else self.rs_data[2]
                 if self.rs_data[2] != 0: 
@@ -82,6 +83,13 @@ class JoyMux:
                     self.send_cmd(-1*self.rs_data[1]*np.sin(np.radians(self.rs_data[2])), self.rs_data[1]*np.cos(np.radians(self.rs_data[2])), self.rs_data[3])
                     continue
 
+            if  self.gps_ob.heading_diff is not None:
+            	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
+                    rospy.logdebug("GPS ")
+                    self.gps_ob.align(5)
+                    if self.gps_ob.side_clear==1:
+
+                        continue
             # if self.rs_data is not None: #Realsense
             #     if self.rs_data[2] == 90 :
             #         while self.rs_data[2] != 0:
@@ -89,11 +97,6 @@ class JoyMux:
             #     elif self.rs_data[2] == -90:
             #         while self.rs_data!=0:
             #             #send hard right turn
-            if  self.gps_ob.heading_diff is not None:
-            	if(90<=self.gps_ob.heading_diff<=180 or 180<=self.gps_ob.heading_diff<=270):
-                    rospy.logdebug("GPS ")
-                    self.gps_ob.align(5)
-                    continue
  
             if self.sick_data is not None: #Sick data
                 self.sick_data[2] = 0 if (abs(self.sick_data[2]) <= 9) else self.sick_data[2]
@@ -102,6 +105,7 @@ class JoyMux:
                     #self.send_cmd(-1*self.sick_data[1]*np.sin(np.radians(self.sick_data[2])), self.sick_data[1]*np.cos(np.radians(self.sick_data[2])), self.sick_data[3])
                     self.send_cmd(-1*self.sick_data[2],self.sick_data[1],self.sick_data[3])
                     continue
+
 
             #GPS Data Correction
             self.send_cmd(8000, 16000, self.gear)

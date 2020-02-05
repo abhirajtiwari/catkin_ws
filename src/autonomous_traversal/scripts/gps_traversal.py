@@ -19,12 +19,18 @@ class GPSTraversal:
         self.heading_diff = None
         self.bearing = None
         self.dist = None
-        #self.endcoods = [13.3481131,74.7926283]
+        self.side_clear = 1
+
         #self.endcoods = [13.3475449, 74.7920938] #home
-        self.endcoods = [13.348080, 74.792655] #parking lot N
+
+        #self.endcoods = [13.348080, 74.792655] #parking lot N
         #self.endcoods = [13.3476127, 74.7928378] #kc gate 2 deeper
         #self.endcoods = [13.347486, 74.792730] #kc gate
-        #self.endcoods = [13.3478433, 74,7921981]
+
+        #self.endcoods = [13.3502136, 74.7912489] #irc hill
+        self.endcoods = [13.3496395, 74.7915024] #irc home
+        #self.endcoods = [13.3501680, 74.7911333]
+        #self.endcoods = [13.34752166, 74.79196833]
         self.turn_gear = 6
         self.imu_sub = rospy.Subscriber("/imu_data/raw", Imu, self.imu_callback)
         self.gps_sub = rospy.Subscriber("/fix", NavSatFix, self.fix_callback)
@@ -82,17 +88,17 @@ class GPSTraversal:
                 ccserviceProxy = rospy.ServiceProxy('check_clear', ClearService)
             except Exception as e:
                 print (str(e))
-                side_clear = 1
+                self.side_clear = 1
             while abs(self.heading_diff) >= buf:
                 time.sleep(0.03)
                 rospy.logdebug("Aligning rover %f",self.heading_diff)
                 try:
-                    side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90).response
-                    rospy.logdebug("side_clear: %d", side_clear)
+                    self.side_clear = ccserviceProxy(-90 if (180 >=self.heading_diff >= 0) else 90).response
+                    rospy.logdebug("side_clear: %d", self.side_clear)
                 except Exception as e:
                     rospy.logdebug("service exception")
-                    side_clear = 1
-                if side_clear != 1 : 
+                    self.side_clear = 1
+                if self.side_clear != 1 : 
                     break
                 rospy.logdebug("Publishing")
                 self.pub.publish ( self.match_head_cmds() )
