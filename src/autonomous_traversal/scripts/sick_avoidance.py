@@ -30,11 +30,12 @@ class SickAvoider:
         mid = int(req.angle * 1101/275)
         buf = 10
         left = 0 if mid-buf<0 else mid-buf
-        right = 1100 if mid+buf>0 else mid+buf
+        right = 1100 if mid+buf>1100 else mid+buf
         if self.np_ranges is not None:
             if mid<0 or mid>1100:
                 return ClearServiceResponse(1)
             if np.mean(self.np_ranges[left:right]) < 4:	 #Tweakable param here
+                rospy.logdebug("not clear %f", req.angle)
                 return ClearServiceResponse(0)
             else: return ClearServiceResponse(1)
         else: return ClearServiceResponse(1)
