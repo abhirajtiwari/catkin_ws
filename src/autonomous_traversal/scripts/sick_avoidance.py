@@ -26,7 +26,7 @@ class SickAvoider:
         # self._lock = threading.Lock()
 
     def clear_service_callback(self,req):
-        req.angle = 180 - req.angle
+        req.angle = 137.5 - req.angle
         mid = int(req.angle * 1101/275)
         buf = 10
         left = 0 if mid-buf<0 else mid-buf
