@@ -1,0 +1,12 @@
+<launch>
+	<include file="$(find teleoperation)/launch/imu_gps_led_drive.launch"/>
+	<include file="$(find sick_scan)/launch/sick_mrs_1xxx.launch"/>
+	<include file="$(find rs_driver)/launch/rs_publish.launch"/>
+	<!-- <node name="gps_traversal" pkg="autonomous_traversal" type="soft_gps_traversal.py"/> -->
+	<node name="sick_avoidance" pkg="autonomous_traversal" type="sick_avoidance.py" />
+	<node name="gps_trav" pkg="autonomous_traversal" type="soft_gps_traversal.py"/>
+	<node name="joy_mux" pkg="autonomous_traversal" type="joy_mux1.py" output="screen"/> 
+	<node name="realsense_auto" pkg="close_range_avoid" type="close_range_avoid_node"/>
+    <!-- <node name="console" pkg="rqt_console" type="rqt_console"/> -->
+</launch>
+

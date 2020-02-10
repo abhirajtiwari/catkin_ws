@@ -1,0 +1,10 @@
+{
+    "python.pythonPath": "/usr/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "cmake.configureOnOpen": false,
+    "python.autoComplete.extraPaths": [
+        "/home/nvidia/catkin_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ]
+}
