@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/nvidia/catkin_ws/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/nvidia/catkin_ws/src/sensor_drivers/gps_driver/include/**",
+        "/home/nvidia/catkin_ws/src/sensor_drivers/imu_driver/include/**",
+        "/home/nvidia/catkin_ws/src/my_pcl_tutorial/include/**",
+        "/home/nvidia/catkin_ws/src/realsense-ros/realsense2_camera/include/**",
+        "/home/nvidia/catkin_ws/src/teleoperation/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_bullet/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_eigen/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_geometry_msgs/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_kdl/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_msgs/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_ros/include/**",
+        "/home/nvidia/catkin_ws/src/geometry2/tf2_sensor_msgs/include/**",
+        "/home/nvidia/catkin_ws/src/visual_odom/include/**",
+        "/home/nvidia/catkin_ws/src/yam_obs/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ]
+}
